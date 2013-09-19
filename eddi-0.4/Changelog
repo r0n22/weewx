@@ -1,0 +1,13 @@
+ws28xx driver
+=============
+0.4
+- Start support for multiple ws connected
+0.3
+- Add initial support for statin with OldRainsensors (should be pre 2009 unit)
+0.2
+- Add support for historic data
+- Less cpu usage
+- Menu for easier configuration
+0.1
+- Added support for EU unit
+- First working release

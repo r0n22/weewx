@@ -1,0 +1,368 @@
+# $Id: ws28xx-messages_v2.txt 2013-06-24 12:00:00 lheijst
+#
+# Copyright 2013 Luc Heijst
+#
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or any later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.
+#
+# See http://www.gnu.org/licenses/
+#
+# Thanks to Eddie De Pieri for the first Python implementation for WS-28xx.
+# Eddie did the difficult work of decompiling HeavyWeather then converting
+# and reverse engineering into a functional Python implementation.  Eddie's
+# work was based on reverse engineering of HeavyWeather 2800 v 1.54
+# Further thanks to Matthew Wall for the Python implementation for weewx.
+#
+# All information below is achieved by logging the messages of weewx version
+# 2.3.1 and inspecting the code of the ws28xx.py module.
+# Additional information is achieved by capturing the USB messages between
+# Heavy Weather Pro for ws2800 and the TFA Primus Weather Station via
+# windows program USB sniffer busdog64_v0.2.1.
+
+------------------------------------------------------------------------------------
+1. Message types
+
+The first byte of a message determines the message type.
+
+ID   Type               Length buf
+
+01   (unknown)            0x0f  (15)
+d0   SetRX                0x15  (21)
+d1   SetTX                0x15  (21)
+d5   SetFrame             0x111 (273)
+d6   GetFrame             0x111 (273)
+d7   SetState             0x15  (21)
+d8   SetPreamblePattern   0x15  (21)
+d9   Execute              0x0f  (15)
+dc   ReadConfigFlash in   0x15  (21)   
+dd   ReadConfigFlash out  0x15  (21)   
+de   GetState             0x0a  (10)
+f0   WriteReg             0x05  (5)
+
+------------------------------------------------------------------------------------
+2. 01 message (15 bytes)
+000:  01 15 00 0b 08 58 3f 53 00 00   00 00 ff 15 0b (detected via USB sniffer)
+000:  01 15 00 57 01 92 3f 53 00 00   00 00 ff 15 0a (detected via USB sniffer)
+
+00:    messageID
+------------------------------------------------------------------------------------
+3. SetRX message (21 bytes)
+000:  d0 00 00 00 00 00 00 00 00 00   00 00 00 00 00 00 00 00 00 00
+020:  00 
+  
+00:    messageID
+01-20: 00
+
+------------------------------------------------------------------------------------
+4. SetTX message (21 bytes)
+000: d1 00 00 00 00 00 00 00 00 00   00 00 00 00 00 00 00 00 00 00
+020: 00 
+  
+00:    messageID
+01-20: 00
+
+------------------------------------------------------------------------------------
+5. SetFrame message (273 bytes)
+
+Action:
+00: rtGetHistory – Ask for History message       
+01: rtSetTime    - Ask for Request Time message
+02: rtSetConfig  – Send Config to WS
+03: rtGetConfig  - Ask for Request Config message
+05: rtGetCurrent - Ask for Current Weather message
+c0: Send Time    - Send Time to WS
+
+000:  d5 00 09 DevID 00 CfgCS cIntThisIdx xx xx xx  rtGetHistory 
+000:  d5 00 09 DevID 01 CfgCS cIntThisIdx xx xx xx  rtSetTime
+000:  d5 00 30 DevID 02 CfgCS 00 [ConfigData .. ..  rtSetConfig
+000:  d5 00 09 DevID 03 CfgCS cIntThisIdx xx xx xx  rtGetConfig
+000:  d5 00 09 DevID 05 CfgCS cIntThisIdx xx xx xx  rtGetCurrent
+000:  d5 00 0c DevID c0 CfgCS [TimeData . .. .. ..  Send Time
+
+All SetFrame messages:
+00:    messageID
+01:    00
+02:    Message Length (starting with next byte)
+03-04: DeviceID           [DevID] 
+05:    Action
+06-07: Config checksum    [CfgCS]
+
+Additional bytes rtGetCurrent, rtGetHistory, rtSetTime messages:
+08-09hi: ComInt           [cINT]    1.5 bytes (high byte first)
+09lo-12: ThisHistoryIndex [ThisIdx] 2.5 bytes (high byte first)
+
+Additional bytes Send Time message:
+08:    seconds
+09:    minutes
+10:    hours
+11hi:  DayOfWeek
+11lo:  day_lo         (low byte)
+12hi:  month_lo       (low byte)
+12lo:  day_hi         (high byte)
+13hi:  (year-2000)_lo (low byte)
+13lo:  month_hi       (high byte)
+14lo:  (year-2000)_hi (high byte)
+
+------------------------------------------------------------------------------------
+6. GetFrame message                                          
+
+Response type:
+20: WS SetTime / SetConfig - Data written
+40: GetConfig
+60: Current Weather
+80: Actual / Outstanding History
+a2: Request SetConfig
+a3: Request SetTime
+
+000:  00 00 06 DevID 20 64 CfgCS xx xx xx xx xx xx xx xx xx  Time/Config written
+000:  00 00 30 DevID 40 64 [ConfigData .. .. .. .. .. .. ..  GetConfig
+000:  00 00 d7 DevID 60 64 CfgCS [CurData .. .. .. .. .. ..  Current Weather
+000:  00 00 1e DevID 80 64 CfgCS 0LateIdx 0ThisIdx [HisData  Outstanding History
+000:  00 00 1e DevID 80 64 CfgCS 0ThisIdx 0ThisIdx [HisData  Actual History
+000:  00 00 06 DevID a2 64 CfgCS xx xx xx xx xx xx xx xx xx  Request SetConfig
+000:  00 00 06 DevID a3 64 CfgCS xx xx xx xx xx xx xx xx xx  Request SetTime
+
+ReadConfig example:  
+000: 01 2e 40 5f 36 53 02 00 00 00  00 81 00 04 10 00 82 00 04 20  
+020: 00 71 41 72 42 00 05 00 00 00  27 10 00 02 83 60 96 01 03 07  
+040: 21 04 01 00 00 00 CfgCS
+
+WriteConfig example:
+000: 01 2e 40 64 36 53 02 00 00 00  00 00 10 04 00 81 00 20 04 00  
+020: 82 41 71 42 72 00 00 05 00 00  00 10 27 01 96 60 83 02 01 04  
+040: 21 07 03 10 00 00 CfgCS
+
+00:    messageID
+01:    00
+02:    Message Length (starting with next byte)
+03-04: DeviceID [devID]     
+05hi:  responseType
+06:    Quality (in steps of 5)
+
+Additional byte all GetFrame messages except Request SetConfig and Request SetTime:
+05lo:  BatteryStat
+
+Additional byte Request SetConfig and Request SetTime:
+05lo:  RequestID
+
+Additional bytes all GetFrame messages except ReadConfig and WriteConfig
+07-08: Config checksum [CfgCS]
+
+Additional bytes Outstanding History:
+09lo-11: LatestHistoryIndex [LateIdx] 2.5 bytes (Latest to sent)
+12lo-14: ThisHistoryIndex   [ThisIdx] 2.5 bytes (Outstanding)
+
+Additional bytes Actual History:
+09lo-11: LatestHistoryIndex [ThisIdx] 2.5 bytes (LatestHistoryIndex is the same 
+12lo-14: ThisHistoryIndex   [ThisIdx] 2.5 bytes  as ThisHistoryIndex)
+
+Additional bytes ReadConfig and WriteConfig
+43-45: ResetMinMaxFlags (Output only; not included in checksum calculation)
+46-47: Config checksum [CfgCS] (CheckSum = sum of bytes (00-42) + 7)
+
+------------------------------------------------------------------------------------
+7. SetState message
+000:  d7 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:    messageID
+01-14: 00
+
+------------------------------------------------------------------------------------
+8. SetPreablePattern message
+000:  d8 aa 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:    messageID
+01:    ??
+02-14: 00
+
+------------------------------------------------------------------------------------
+9. Execute message
+
+000:  d9 05 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+00:    messageID
+01:    ??
+02-14: 00
+
+------------------------------------------------------------------------------------
+10. ReadConfigFlash in – receive data
+
+000: dc 0a 01 f5 00 01 78 a0 01 02  0a 0c 0c 01 2e ff ff ff ff ff – freq. correction
+000: dc 0a 01 f9 01 02 0a 0c 0c 01  2e ff ff ff ff ff ff ff ff ff - transceiver data
+
+00:    messageID
+01:    length
+02-03: address
+
+Additional bytes frequention correction
+05lo-07hi: frequention correction
+
+Additional bytes transceiver data
+05-10:     serial number
+09-10:     DeviceID [devID]     
+
+------------------------------------------------------------------------------------
+11. ReadConfigFlash out – ask for data
+
+000: dd 0a 01 f5 cc cc cc cc cc cc  cc cc cc cc cc – Ask for frequention correction 
+000: dd 0a 01 f9 cc cc cc cc cc cc  cc cc cc cc cc – Ask for transceiver data
+
+00:    messageID
+01:    length
+02-03: address
+04-14: cc
+
+------------------------------------------------------------------------------------
+12. GetState message
+
+000:  de 14 00 00 00 00 (between SetPreamblePattern and first de16 message)
+000:  de 15 00 00 00 00 Idle message
+000:  de 16 00 00 00 00 Normal message
+000:  de 0b 00 00 00 00 (detected via USB sniffer)
+
+00:    messageID
+01:    stateID
+02-05: 00
+
+------------------------------------------------------------------------------------
+13. Writereg message
+
+000: f0 08 01 00 00 - AX5051RegisterNames.IFMODE
+000: f0 10 01 41 00 - AX5051RegisterNames.MODULATION
+000: f0 11 01 07 00 - AX5051RegisterNames.ENCODING
+...
+000: f0 7b 01 88 00 - AX5051RegisterNames.TXRATEMID 
+000: f0 7c 01 23 00 - AX5051RegisterNames.TXRATELO
+000: f0 7d 01 35 00 - AX5051RegisterNames.TXDRIVER
+
+00:    messageID
+01:    register address
+02:    01
+03:    AX5051RegisterName
+04:    00
+------------------------------------------------------------------------------------
+
+Examples of messages
+
+readCurrentWeather
+Cur   000: 01 2e 60 5f 05 1b 00 00 12 01  30 62 21 54 41 30 62 40 75 36  
+Cur   020: 59 00 60 70 06 35 00 01 30 62  31 61 21 30 62 30 55 95 92 00  
+Cur   040: 53 10 05 37 00 01 30 62 01 90  81 30 62 40 90 66 38 00 49 00  
+Cur   060: 05 37 00 01 30 62 21 53 01 30  62 22 31 75 51 11 50 40 05 13  
+Cur   080: 80 13 06 22 21 40 13 06 23 19  37 67 52 59 13 06 23 06 09 13  
+Cur   100: 06 23 16 19 91 65 86 00 00 00  00 00 00 00 00 00 00 00 00 00  
+Cur   120: 00 00 00 00 00 00 00 00 00 13  06 23 09 59 00 06 19 00 00 51  
+Cur   140: 13 06 22 20 43 00 01 54 00 00  00 01 30 62 21 51 00 00 38 70  
+Cur   160: a7 cc 7b 50 09 01 01 00 00 00  00 00 00 fc 00 a7 cc 7b 14 13  
+Cur   180: 06 23 14 06 0e a0 00 01 b0 00  13 06 23 06 34 03 00 91 01 92  
+Cur   200: 03 00 91 01 92 02 97 41 00 74  03 00 91 01 92
+ 
+WeatherState: Sunny(Good) WeatherTendency: Rising(Up) AlarmRingingFlags: 0000
+TempIndoor       23.500 Min:  20.700 2013-06-24 07:53  Max:  25.900 2013-06-22 15:44
+HumidityIndoor   59.000 Min:  52.000 2013-06-23 19:37  Max:  67.000 2013-06-22 21:40
+TempOutdoor      13.700 Min:  13.100 2013-06-23 05:59  Max:  19.200 2013-06-23 16:12
+HumidityOutdoor  86.000 Min:  65.000 2013-06-23 16:19  Max:  91.000 2013-06-23 06:09
+Windchill        13.700 Min:   9.000 2013-06-24 09:06  Max:  23.800 2013-06-20 19:08
+Dewpoint         11.380 Min:  10.400 2013-06-22 23:17  Max:  15.111 2013-06-22 15:30
+WindSpeed         2.520
+Gust              4.320                                Max:  37.440 2013-06-23 14:06
+WindDirection    WSW    GustDirection    WSW
+WindDirection1   SSE    GustDirection1   SSE
+WindDirection2     W    GustDirection2     W
+WindDirection3     W    GustDirection3     W
+WindDirection4   SSE    GustDirection4   SSE
+WindDirection5    SW    GustDirection5    SW
+RainLastMonth     0.000                                Max:   0.000 1900-01-01 00:00
+RainLastWeek      0.000                                Max:   0.000 1900-01-01 00:00
+Rain24H           0.510                                Max:   6.190 2013-06-23 09:59
+Rain1H            0.000                                Max:   1.540 2013-06-22 20:43
+RainTotal         3.870                       LastRainReset         2013-06-22 15:10
+PressureRelhPa 1019.200 Min:1007.400 2013-06-23 06:34  Max:1019.200 2013-06-23 06:34
+PressureRel_inHg 30.090 Min:  29.740 2013-06-23 06:34  Max:  30.090 2013-06-23 06:34
+Bytes with unknown meaning at 157-165: 50 09 01 01 00 00 00 00 00 
+------------------------------------------------------------------------------------
+
+readHistory
+His   000: 01 2e 80 5f 05 1b 00 7b 32 00  7b 32 00 0c 70 0a 00 08 65 91  
+His   020: 01 92 53 76 35 13 06 24 09 10 
+ 
+m_Time           2013-06-24 09:10:00
+m_TempIndoor=          23.5
+m_HumidityIndoor=        59
+m_TempOutdoor=         13.7
+m_HumidityOutdoor=       86
+m_PressureRelative=  1019.2
+m_RainCounterRaw=       0.0
+m_WindDirection=        SSE
+m_WindSpeed=            1.0
+m_Gust=                 1.2
+------------------------------------------------------------------------------------
+
+readConfig
+In   000: 01 2e 40 5f 36 53 02 00 00 00  00 81 00 04 10 00 82 00 04 20  
+In   020: 00 71 41 72 42 00 05 00 00 00  27 10 00 02 83 60 96 01 03 07  
+In   040: 21 04 01 00 00 00 05 1b
+ 
+writeConfig
+Out  000: 01 2e 40 64 36 53 02 00 00 00  00 00 10 04 00 81 00 20 04 00  
+Out  020: 82 41 71 42 72 00 00 05 00 00  00 10 27 01 96 60 83 02 01 04  
+Out  040: 21 07 03 10 00 00 05 1b 
+
+OutBufCS=             051b
+ClockMode=            0
+TemperatureFormat=    1
+PressureFormat=       1
+RainFormat=           0
+WindspeedFormat=      3
+WeatherThreshold=     3
+StormThreshold=       5
+LCDContrast=          2
+LowBatFlags=          0
+WindDirAlarmFlags=    0000
+OtherAlarmFlags=      0000
+HistoryInterval=      0
+TempIndoor_Min=       1.0
+TempIndoor_Max=       41.0
+TempOutdoor_Min=      2.0
+TempOutdoor_Max=      42.0
+HumidityIndoor_Min=   41
+HumidityIndoor_Max=   71
+HumidityOutdoor_Min=  42
+HumidityOutdoor_Max=  72
+Rain24HMax=           50.0
+GustMax=              100.0
+PressureRel_hPa_Min=  960.1
+PressureRel_inHg_Min= 28.36
+PressureRel_hPa_Max=  1040.1
+PressureRel_inHg_Max= 30.72
+ResetMinMaxFlags=     100000 (Output only; Input always 00 00 00)
+------------------------------------------------------------------------------------
+
+WS SetTime - Send time to WS
+Time  000: 01 2e c0 05 1b 19 14 12 40 62  30 01
+time sent: 2013-06-24 12:14:19 
+------------------------------------------------------------------------------------
+ReadConfigFlash data
+
+Ask for frequention correction 
+rcfo  000: dd 0a 01 f5 cc cc cc cc cc cc  cc cc cc cc cc
+
+readConfigFlash frequention correction
+rcfi  000: dc 0a 01 f5 00 01 78 a0 01 02  0a 0c 0c 01 2e ff ff ff ff ff
+frequency correction: 96416 (178a0)
+adjusted frequency: 910574957 (3646456d)
+
+Ask for transceiver data 
+rcfo  000: dd 0a 01 f9 cc cc cc cc cc cc  cc cc cc cc cc
+
+readConfigFlash serial number and DevID
+rcfi  000: dc 0a 01 f9 01 02 0a 0c 0c 01  2e ff ff ff ff ff ff ff ff ff
+transceiver ID: 302 (12e)
+transceiver serial: 01021012120146
+------------------------------------------------------------------------------------
+
