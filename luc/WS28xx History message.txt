@@ -1,0 +1,35 @@
+WS28xx - History message				
+				
+start	position in message buffer			
+hi-lo	data starts on first (hi) or second (lo) nuibble			
+chars	data length in characters (nibbles)			
+rem	remark (see below)			
+name	variable			
+				
+start	hi-lo	chars	rem	name
+0	hi	4		DevID
+2	hi	2		Action
+3	hi	2		Quality
+4	hi	4		DeviceCS
+6	hi	6		LatestIndex
+9	hi	6		ThisIndex
+12	hi	1		not used
+12	lo	3		m_Gust
+14	hi	1		m_WindDirection
+14	lo	3		m_WindSpeed
+16	hi	3		m_RainCounterRaw
+17	lo	2		m_HumidityOutdoor
+18	lo	2		m_HumidityIndoor
+19	lo	5		m_PressureRelative
+22	hi	3		m_TempOutdoor
+23	lo	3		m_TempIndoor
+25	hi	10		m_Time
+				
+29	lo	60		end
+				
+			Remarks	
+				
+				
+				
+				
+				

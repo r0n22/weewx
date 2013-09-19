@@ -1,0 +1,89 @@
+WS28xx - Get Config message				
+				
+start	position in message buffer			
+hi-lo	data starts on first (hi) or second (lo) nuibble			
+chars	data length in characters (nibbles)			
+rem	remark (see below)			
+name	variable			
+				
+start	hi-lo	chars	rem	name
+0	hi	4		DevID
+2	hi	2		Action
+3	hi	2		Quality
+4	hi	1	1	_WindspeedFormat
+4	lo	0,25	2	_RainFormat
+4	lo	0,25	3	_PressureFormat
+4	lo	0,25	4	_TemperatureFormat
+4	lo	0,25	5	_ClockMode
+5	hi	1		_WeatherThreshold
+5	lo	1		_StormThreshold
+6	hi	1		_LowBatFlags
+6	lo	1	6	_LCDContrast
+7	hi	4	7	_WindDirAlarmFlags
+9	hi	4	8	_OtherAlarmFlags
+11	hi	5		_TempIndoorMinMax._Min._Value
+13	lo	5		_TempIndoorMinMax._Max._Value
+16	hi	5		_TempOutdoorMinMax._Min._Value
+18	lo	5		_TempOutdoorMinMax._Max._Value
+21	hi	2		_HumidityIndoorMinMax._Max._Value
+22	hi	2		_HumidityIndoorMinMax._Min._Value
+23	hi	2		_HumidityOutdoorMinMax._Max._Value
+24	hi	2		_HumidityOutdoorMinMax._Min._Value
+25	hi	1		not used
+25	lo	7		_Rain24HMax._Max._Value
+29	hi	2		_HistoryInterval
+30	hi	5		_GustMax._Max._Value
+32	lo	1		not used
+33	hi	5		_PressureRelative_hPaMinMax._Min._Value
+35	lo	5		_PressureRelative_inHgMinMax._Min._Value
+38	hi	5		_PressureRelative_hPaMinMax._Max._Value
+40	lo	5		_PressureRelative_inHgMinMax._Max._Value
+43	hi	6	9	_ResetMinMaxFlags
+46	hi	4	10	_InBufCS
+				
+47	lo	96		end
+				
+			Remarks	
+			1	0=m/s 1=knots 2=bft 3=km/h 4=mph
+			2	0=mm   1=inch
+			3	0=inHg 2=hPa
+			4	0=F    1=C
+			5	0=24h  1=12h
+			6	values 0-7 => LCD contrast 1-8
+			7	WindDir Alarms (values in hex)
+				80 00 = NNW
+				40 00 = NW
+				20 00 = WNW
+				10 00 = W
+				08 00 = WSW
+				04 00 = SW
+				02 00 = SSW
+				01 00 = S
+				00 80 = SSE
+				00 40 = SE
+				00 20 = ESE
+				00 10 = E
+				00 08 = ENE
+				00 04 = NE
+				00 02 = NNE
+				00 01 = N
+			8	Other Alarms (values in hex)
+				80 00 = Hi Al Gust
+				40 00 = Al WindDir
+				20 00 = One or more WindDirs set
+				10 00 = Hi Al Rain24H
+				08 00 = Hi Al Outdoor Humidity
+				04 00 = Lo Al Outdoor Humidity
+				02 00 = Hi Al Indoor Humidity
+				01 00 = Lo Al Indoor Humidity
+				00 80 = Hi Al Outdoor Temp        
+				00 40 = Lo Al Outdoor Temp
+				00 20 = Hi Al Indoor Temp
+				00 10 = Lo Al Indoor Temp
+				00 08 = Hi Al Pressure
+				00 04 = Lo Al Pressure
+				00 02 = not used
+				00 01 = not used
+			9	ResetMinMaxFlags (values in hex)
+				"Output only; input =  00 00 00"
+			10	Checksum = sum bytes (0-42) + 7 
