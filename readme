@@ -1,0 +1,10 @@
+this branch is for ws28xx driver development.
+
+the weewx trunk should contain what is considered the latest stable driver.
+
+eddi-*   - these directories contain partial clones of eddi's git repository
+           https://github.com/dpeddi/ws-28xx.git
+
+luc      - various iterations by lucas heijst
+
+mwall    - various iterations by matthew wall
