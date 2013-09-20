@@ -8,3 +8,6 @@ eddi-*   - these directories contain partial clones of eddi's git repository
 luc      - various iterations by lucas heijst
 
 mwall    - various iterations by matthew wall
+  r563 - early packaging of eddi's code into weewx structure
+  0.2  - stable from trunk r1343
+  0.3  - unstable merge of luc's v11 and 0.2
