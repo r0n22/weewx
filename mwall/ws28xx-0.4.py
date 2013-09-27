@@ -852,7 +852,6 @@ import weeutil.weeutil
 import weewx.abstractstation
 import weewx.units
 
-# FIXME: roughly equivalent to luc's v15
 DRIVER_VERSION = '0.4'
 
 # name of the pseudo configuration filename
@@ -3032,7 +3031,9 @@ class CDataStore(object):
             logerr('getHistory: transceiver is not paired')
             return
 
-        self.Request.Type = ERequestType.rtGetHistory
+# FIXME: temporarily ignore history, replace with get current
+#        self.Request.Type = ERequestType.rtGetHistory
+        self.Request.Type = ERequestType.rtGetCurrent
         self.Request.State = ERequestState.rsQueued
         self.Request.TTL = 90000
 
@@ -3626,12 +3627,13 @@ class CCommunicationService(object):
             newBuffer[0][i] = Buffer[0][i]
 
         # when last weather is stale, change action to get current weather
-        if action != 5 and now - self.DataStore.LastStat.LastCurrentWeatherTime >= timedelta(seconds=30):
-            loginf('morphing action from %d to 5' % action)
+        age = now - self.DataStore.LastStat.LastCurrentWeatherTime
+        if action != 5 and age >= timedelta(seconds=30):
+            loginf('morphing action from %d to 5 (age=%s)' % (action, age))
             action = 5
         # FIXME: for now, never ask for historical records
         if action == 0:
-            loginf('morphing action from %d to 0' % action)
+            loginf('morphing action from %d to 5' % action)
             action = 5
 
         newBuffer[0][2] = action & 0xF
@@ -3784,16 +3786,16 @@ class CCommunicationService(object):
 
         # FIXME: for now skip the history records
         if self.DifHis > 0:
+            ThisHistoryIndex = LatestHistoryIndex
             self.DifHis = 0
             self.DataStore.setLastHistoryIndex(ThisHistoryIndex)
-            self.DataStore.setLastHistoryDataTime(now)
         else:
             if ThisHistoryIndex == self.DataStore.getLastHistoryIndex():
-                self.DataStore.setLastHistoryDataTime(now)
+                pass
             else:
                 self.DataStore.setHistoryData(Data)
                 self.DataStore.setLastHistoryIndex(ThisHistoryIndex)
-                self.DataStore.setLastHistoryDataTime(now)        
+        self.DataStore.setLastHistoryDataTime(now)
 
         if ThisHistoryIndex == LatestHistoryIndex:
             self.TimeDifSec = (Data.m_Time - now).seconds
