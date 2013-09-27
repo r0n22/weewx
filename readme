@@ -5,9 +5,53 @@ the weewx trunk should contain what is considered the latest stable driver.
 eddi-*   - these directories contain partial clones of eddi's git repository
            https://github.com/dpeddi/ws-28xx.git
 
+mwall    - various iterations by matthew wall
+
+  0.4  - unstable merge of luc's v15 and 0.2
+  0.3  - unstable merge of luc's v11 and 0.2
+  0.2  - stable from trunk r1343 (weewx 2.4.0+)
+  r563 - early packaging of eddi's code into weewx structure
+
 luc      - various iterations by lucas heijst
 
-mwall    - various iterations by matthew wall
-  r563 - early packaging of eddi's code into weewx structure
-  0.2  - stable from trunk r1343
-  0.3  - unstable merge of luc's v11 and 0.2
+  v15
+  The skipping of a double received History message throwed an exeption
+  in doRF: local variable 'Data' referenced before assignment. As this
+  happens rarely and nothing is done withe the data, I skipped this
+  skipping. :-) Also removed some unused test code in module getState.
+
+  v14
+  - fine tuned dedicated timing
+  - the history interval is changed from 24 hours to 60 minutes
+  - skip handling of Current Data and History messages when previous messages
+    are received within 3 seconds
+  - removed detection of double messages in getFrame
+
+  The best timing for reading History Data is an initial wait of 380 ms
+  followed by succesive waits of 200 ms. This timing is also good for
+  receiving Current data. Disadvantage is that regularly a double message
+  is received 380 ms after the previous message. The handling of double
+  messages (received within 3 seconds) is therefore skipped.
+
+  The getConfig and SetConfig calls need several tries (1-10 typical) before
+  the communication is succesful. As long as getConfig is not succesful, de
+  collection of data will not start effectively. The setconfig call is only
+  executed when the output config buffer differs from the current config
+  buffer. Initally this will be (one time) for the History Interval which
+  will be set to 1 hour (hi60MIN=6).
+
+  v13
+  I have been testing version 13 of my driver a couple of days. With
+  HistoryInterval set to hi24Std the History records come once per day.
+  Unfortunately it comes synchronised with the WS clock at 00:00. A moment
+  the Raspbery PI becomes very busy with all kinds of tasks.
+  Because of this the history record was not read in time and synchronisation
+  was lost. At 01:00 the commuication started again as expected.
+
+  I'm trying another concept now. The driver doesn't request anymore for the
+  next history record (to come), but the most recent history record (which is
+  instant available).
+  The only reason for requesting history records is to keep up synchronisation.
+
+  There is no need for you to test version 13 any longer. As soon as I have
+  found a better synchronisation, I will get in touch with you.
