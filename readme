@@ -7,9 +7,10 @@ eddi-*   - these directories contain partial clones of eddi's git repository
 
 mwall    - various iterations by matthew wall
 
-  0.4  - unstable merge of luc's v15 and 0.2
-  0.3  - unstable merge of luc's v11 and 0.2
-  0.2  - stable from trunk r1343 (weewx 2.4.0+)
+  0.5  - unstable, include luc's tweaks from 28sep2013
+  0.4  - unstable, merge of luc's v15 and 0.2
+  0.3  - unstable, merge of luc's v11 and 0.2
+  0.2  - stable, from trunk r1343 (weewx 2.4.0+)
   r563 - early packaging of eddi's code into weewx structure
 
 luc      - various iterations by lucas heijst
