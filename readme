@@ -7,6 +7,10 @@ eddi-*   - these directories contain partial clones of eddi's git repository
 
 mwall    - various iterations by matthew wall
 
+  0.7  - unstable, refactored methods for thread-safety;
+                   better handling of sigTERM;
+                   added debug options in weewx.conf;
+                   cache file is now optional, reducing writes on flash drives
   0.6  - unstable, improved logging for timing diagnoses
   0.5  - unstable, include luc's tweaks from 28sep2013
   0.4  - unstable, merge of luc's v15 and 0.2
