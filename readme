@@ -7,6 +7,10 @@ eddi-*   - these directories contain partial clones of eddi's git repository
 
 mwall    - various iterations by matthew wall
 
+  0.8  - unstable, clean up thread termination;
+                   fix config frame timing;
+                   fix traceback formatting;
+                   remove more dead code
   0.7  - unstable, refactored methods for thread-safety;
                    better handling of sigTERM;
                    added debug options in weewx.conf;
