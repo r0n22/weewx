@@ -7,6 +7,9 @@ eddi-*   - these directories contain partial clones of eddi's git repository
 
 mwall    - various iterations by matthew wall
 
+  0.10 - unstable, more threading improvements;
+                   begin consolidation of checksums;
+                   replace if-else with try-except
   0.9  - unstable, more documentation tweaks;
                    adjust log levels;
                    hack to block generateResponse fails;
