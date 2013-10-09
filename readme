@@ -7,6 +7,14 @@ eddi-*   - these directories contain partial clones of eddi's git repository
 
 mwall    - various iterations by matthew wall
 
+  0.13 - unstable, added check for gust max overflow/error;
+                   use specific exceptions in except clauses;
+                   be more pythonic about len(x);
+                   consolidate error/overflow checks;
+                   change message length of read/write wind/gust to 6 bytes;
+                   fix exception in log of GetHistory WindDirection of None
+  0.12 - stable, released to trunk for weewx 2.5a1
+  0.11 - unstable, fix wind overflow/error
   0.10 - unstable, more threading improvements;
                    begin consolidation of checksums;
                    replace if-else with try-except
