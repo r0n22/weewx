@@ -7,6 +7,7 @@ eddi-*   - these directories contain partial clones of eddi's git repository
 
 mwall    - various iterations by matthew wall
 
+  0.14 - unstable, fix wind direction flags
   0.13 - unstable, added check for gust max overflow/error;
                    use specific exceptions in except clauses;
                    be more pythonic about len(x);
