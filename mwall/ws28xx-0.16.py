@@ -3192,7 +3192,7 @@ class sHID(object):
         msglen = None
         if fmt == 'auto':
             if buf[0] in [0xd5, 0x00]:
-                msglen = buf[5]         # use msg length for set/get frame
+                msglen = buf[2] + 3        # use msg length for set/get frame
             else:
                 msglen = 16                # otherwise do same as short format
         elif fmt == 'short':
@@ -3348,7 +3348,6 @@ class CCommunicationService(object):
         cfgBuffer[0] = [0]*44
         changed = self.DataStore.DeviceConfig.testConfigChanged(cfgBuffer)
         if changed:
-            self.shid.dump('OutBuf', cfgBuffer[0], fmt='long')
             newBuffer[0][0] = Buffer[0][0]
             newBuffer[0][1] = Buffer[0][1]
             newBuffer[0][2] = EAction.aSendConfig # 0x40 # change this value if we won't store config
@@ -3461,7 +3460,6 @@ class CCommunicationService(object):
 
     def handleConfig(self,Buffer,Length):
         logdbg('handleConfig: %s' % self.timing())
-        self.shid.dump('InBuf', Buffer[0], fmt='long')
         newBuffer=[0]
         newBuffer[0] = Buffer[0]
         newLength = [0]
@@ -3494,7 +3492,6 @@ class CCommunicationService(object):
             or chksum != self.DataStore.CurrentWeather.checksum()):
             data = CCurrentWeatherData()
             data.read(Buffer)
-#            self.shid.dump('CurWea', Buffer[0], fmt='long')
             self.DataStore.setCurrentWeather(data)
 
         # update the connection cache
