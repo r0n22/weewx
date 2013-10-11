@@ -3192,7 +3192,7 @@ class sHID(object):
         msglen = None
         if fmt == 'auto':
             if buf[0] in [0xd5, 0x00]:
-                msglen = buf[5]            # use msg length for set/get frame
+                msglen = buf[2] + 3        # use msg length for set/get frame
             else:
                 msglen = 16                # otherwise do same as short format
         elif fmt == 'short':
