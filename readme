@@ -7,6 +7,9 @@ eddi-*   - these directories contain partial clones of eddi's git repository
 
 mwall    - various iterations by matthew wall
 
+  0.17 - unstable, default to auto for dump formatting
+  0.16 - unstable, do set time messages always;
+                   added auto formatting for dumps
   0.15 - unstable, fix gust value when setting config;
                    clear alarm flags to avoid lost connection;
                    minor refactoring of config code
