@@ -7,6 +7,9 @@ eddi-*   - these directories contain partial clones of eddi's git repository
 
 mwall    - various iterations by matthew wall
 
+  0.19 - unstable, remove more dead code;
+                   refactor to support wee_config_ws28xx
+  0.18 - stable,   non-blocking genLoopPackets
   0.17 - unstable, default to auto for dump formatting
   0.16 - unstable, do set time messages always;
                    added auto formatting for dumps
