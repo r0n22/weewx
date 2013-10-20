@@ -7,6 +7,10 @@ eddi-*   - these directories contain partial clones of eddi's git repository
 
 mwall    - various iterations by matthew wall
 
+  0.20 - unstable, remove more dead code;
+                   improved logging when no data or no contact with console;
+                   slight adjustments to sleep timing;
+                   reduced cpu load by about 1.5%
   0.19 - unstable, remove more dead code;
                    refactor to support wee_config_ws28xx
   0.18 - stable,   non-blocking genLoopPackets
