@@ -7,6 +7,7 @@ eddi-*   - these directories contain partial clones of eddi's git repository
 
 mwall    - various iterations by matthew wall
 
+  0.21 - unstable, implement info, current, check-transceiver
   0.20 - unstable, remove more dead code;
                    improved logging when no data or no contact with console;
                    slight adjustments to sleep timing;
