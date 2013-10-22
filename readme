@@ -7,6 +7,10 @@ eddi-*   - these directories contain partial clones of eddi's git repository
 
 mwall    - various iterations by matthew wall
 
+  0.22 - unstable, sort dictionary items when we print them out;
+                   minor code cleanup - remove more dead code;
+                   eliminate vestigial comint argument;
+                   distinguish between unknown and unexpected response type
   0.21 - unstable, implement info, current, check-transceiver
   0.20 - unstable, remove more dead code;
                    improved logging when no data or no contact with console;
