@@ -7,6 +7,8 @@ eddi-*   - these directories contain partial clones of eddi's git repository
 
 mwall    - various iterations by matthew wall
 
+  0.23 - stable,   minor refactoring and comment cleanup;
+                   added comm_interval as config option
   0.22 - unstable, sort dictionary items when we print them out;
                    minor code cleanup - remove more dead code;
                    eliminate vestigial comint argument;
