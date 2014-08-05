@@ -1009,10 +1009,14 @@ def calc_checksum(buf, start, end=None):
     return cs
 
 def get_next_index(idx):
-    nextIdx = idx + 1
-    if nextIdx >= WS28xx.max_records:
-        nextIdx -= WS28xx.max_records
-    return nextIdx
+    return get_index(idx+1)
+
+def get_index(idx):
+    if idx < 0:
+        return idx + WS28xx.max_records
+    elif idx >= WS28xx.max_records:
+        return idx - WS28xx.max_records
+    return idx
 
 def tstr_to_ts(tstr):
     if tstr is None:
@@ -1027,6 +1031,32 @@ def addr_to_index(addr):
 
 def index_to_addr(idx):
     return 18 * idx + 416
+
+def write_history_index(filename, idx, ts):
+    if DEBUG_WRITES > 0:
+        logdbg("save history index: %s %s" % (idx, weeutil.weeutil.timestamp_to_string(ts)))
+    try:
+        with open(filename, 'w') as f:
+            f.write("index=%s" % idx)
+            f.write("timestamp=%s" % ts)
+    except Exception, e:
+        logerr("cannot save history index to %s: %s" % (filename, e))
+
+def read_history_index(filename):
+    idx, ts = None
+    try:
+        with open(filename) as f:
+            for line in f:
+                i = line.find('=')
+                name = line[:i].strip()
+                value = line[i+1:].strip()
+                if name == 'index':
+                    idx = int(value)
+                elif name == 'timestamp':
+                    ts = int(value)
+    except Exception, e:
+        logerr("cannot read history index from %s: %s" % (filename, e))
+    return idx, ts
 
 def loader(config_dict, engine):
     altitude_m = weewx.units.getAltitudeM(config_dict)
@@ -1314,15 +1344,10 @@ class WS28xx(weewx.abstractstation.AbstractStation):
                                                CWeatherTraits.WindNP(),
                                                CWeatherTraits.WindOFL())
 
-        if packet['windSpeed'] is not None and packet['windSpeed'] > 0:
-            packet['windDir'] = data._WindDirection * 360 / 16
-        else:
-            packet['windDir'] = None
-
-        if packet['windGust'] is not None and packet['windGust'] > 0:
-            packet['windGustDir'] = data._GustDirection * 360 / 16
-        else:
-            packet['windGustDir'] = None
+        packet['windDir'] = getWindDir(data._WindDirection,
+                                       packet['windSpeed'])
+        packet['windGustDir'] = getWindDir(data._GustDirection,
+                                           packet['windGust'])
 
         # calculated elements not directly reported by station
         packet['rainRate'] = get_datum_match(data._Rain1H,
@@ -1503,6 +1528,13 @@ class EWindDirection:
     wdERR            = 0x10
     wdInvalid        = 0x11
     wdNone           = 0x12
+
+def getWindDir(wdir, wspeed):
+    if wspeed is None or wspeed == 0:
+        return None
+    if wdir < 0 or wdir >= 16:
+        return None
+    return wdir * 360 / 16
 
 class EResetMinMaxFlags:
     rmTempIndoorHi   = 0
@@ -2792,14 +2824,6 @@ class CHistoryData(object):
 
     def asDict(self):
         """emit historical data as a dict with weewx conventions"""
-        windDir = None
-        if (self.WindSpeed and
-            self.WindDirection >= 0 and self.WindDirection < 16):
-            windDir = self.WindDirection * 360 / 16
-        windGustDir = None
-        if (self.Gust and
-            self.GustDirection >= 0 and self.GustDirection < 16):
-            windGustDir = self.GustDirection * 360 / 16
         return {
             'dateTime' = tstr_to_ts(self.Time),
             'inTemp': self.TempIndoor,
@@ -2809,9 +2833,9 @@ class CHistoryData(object):
             'pressure': self.PressureRelative,
             'rain': self.RainCounterRaw / 10,  # weewx wants cm
             'windSpeed': self.WindSpeed,
-            'windDir': windDir,
+            'windDir': getWindDir(self.WindDirection, self.WindSpeed),
             'windGust': self.Gust,
-            'windGustDir': windGustDir,
+            'windGustDir': getWindDir(self.GustDirection, self.Gust),
             }
 
 class HistoryCache:
@@ -3407,6 +3431,8 @@ class CCommunicationService(object):
 
         self.command = None
         self.history_cache = HistoryCache()
+        # do not set time when offset to whole hour is <= _a3_offset
+        self._a3_offset = 3
 
     def buildFirstConfigFrame(self, Buffer, cs):
         logdbg('buildFirstConfigFrame: cs=%04x' % cs)
@@ -3503,7 +3529,7 @@ class CCommunicationService(object):
             if self.command == EAction.aGetHistory:
                 hidx = self.history_cache.next_index
             elif self.DataStore.getLastHistoryIndex() is not None:
-                hidx = get_next_index(self.DataStore.getLastHistoryIndex())
+                hidx = self.DataStore.getLastHistoryIndex()
         if hidx is None or hidx < 0 or hidx >= WS28xx.max_records:
             haddr = 0xffffff
         else:
@@ -3630,10 +3656,9 @@ class CCommunicationService(object):
         thisAddr = bytes_to_addr(buf[0][9], buf[0][10], buf[0][11])
         latestIndex = addr_to_index(latestAddr)
         thisIndex = addr_to_index(thisAddr)
+        ts = tstr_to_ts(str(data.Time))
 
-        nrec = latestIndex - thisIndex
-        if latestIndex < thisIndex:
-            nrec += WS28xx.max_records
+        nrec = get_index(latestIndex - thisIndex)
         logdbg('handleHistoryData: time=%s'
                ' this=%d (0x%04x) latest=%d (0x%04x) nrec=%d' %
                (data.Time, thisIndex, thisAddr, latestIndex, latestAddr, nrec))
@@ -3642,35 +3667,75 @@ class CCommunicationService(object):
         self.DataStore.setLastHistoryIndex(thisIndex)
         self.DataStore.setLatestHistoryIndex(latestIndex)
 
-        # the first time through, the next index will be latest+2
-        nextIndex = get_next_index(thisIndex)
+        filename = '/var/tmp/ws28xx-history.tmp'
         if self.command == EAction.aGetHistory:
             if self.history_cache.start_index is None:
-                # if there is no start index, start from the record after the
-                # latest one.
-                # FIXME: figure out exactly which record we should start from.
-                # this is non-trivial since the station retains records after
-                # it has been power cycled.
-                idx = get_next_index(latestIndex+1)
-#                idx = get_next_index(latestIndex-70) # for testing
+                last_idx, last_ts = read_history_index(filename)
+                if (last_idx is None or
+                    last_idx < 0 or last_idx >  WS28xx.max_records or
+                    last_ts is None):
+                    # found nothing sane, so use the eldest history record
+                    last_idx = thisIndex
+                    last_ts = ts
+                logdbg('handleHistoryData: using last_idx=%s last_ts=%s' %
+                       (last_idx, last_ts))
+                nrec_ws = nrec + 1
+                if self.history_cache.num_rec > 0:
+                    logdbg('handleHistoryData: request for %s records' %
+                           self.history_cache.num_rec)
+                    idx = get_index(latestIndex - self.history_cache.num_rec)
+                elif self.history_cache.since_ts > 0:
+                    logdbg('handleHistoryData: request records since %s' %
+                           weeutil.weeutil.timestamp_to_string(self.history_cache.since_ts))
+                    history_period = last_ts - ts
+                    if history_period <= 0 or nrec_ws <= 1:
+                        loginf('handleHistoryData: cannot calculate an'
+                               ' interval with only one record:'
+                               ' history_period=%s nrec_ws=%s' %
+                               (history_period, nrec_ws))
+                        idx = latestIndex
+                    else:
+                        history_interval = history_period / nrec_ws
+                        requested_period = last_ts - self.history_cache.since_ts - int(time.time())
+                        if requested_period <= 0:
+                            requested_num_rec = 0
+                        else:
+                            requested_num_rec = int(requested_period / history_interval) + 5 # read 5 extra records
+                            if requested_num_rec > WS28xx.max_records - 2:
+                                requested_num_rec = WS28xx.max_records - 2
+                        idx = get_index(latestIndex - requested_num_rec)
+                else:
+                    logdbg('handleHistoryData: request catchup')
+                    idx = last_idx
+                    self.history_cache.since_ts = last_ts
                 self.history_cache.start_index = idx
                 self.history_cache.next_index = idx
                 logdbg('handleHistoryData: set start_index=%d' % idx)
                 nextIndex = idx
             elif self.history_cache.next_index is not None:
-                if self.history_cache.next_index == thisIndex:
+                write_history_index(filename, thisIndex, ts)
+                # thisIndex should be the next record after next_index
+                if get_next_index(self.history_cache.next_index) == thisIndex:
                     self.history_cache.num_scanned += 1
                     # get the next history record
-                    ts = tstr_to_ts(str(data.Time))
-                    if ts is not None and self.history_cache.since_ts < ts:
+                    if ts is not None and self.history_cache.since_ts <= ts:
+                        # Check if two records in a row with the same ts
+                        if self.history_cache.last_ts == ts:
+                            logdbg('handleHistoryData: remove previous record'
+                                   ' with duplicate timestamp: %s' %
+                                   weeutil.weeutil.timestamp_to_string(ts))
+                            self.history_cahce.records.pop()
+                        self.history_cache.last_ts = ts
                         # append to the history if timestamp in desired range
+                        # the first record already exists in the database, but
+                        # will be skipped later
                         logdbg('handleHistoryData: appending history record'
                                ' %s: %s' % (thisIndex, data.asDict()))
                         self.history_cache.records.append(data.asDict())
                         self.history_cache.num_outstanding_records = nrec
                     else:
                         logdbg('handleHistoryData: skip record: since_ts=%s this_ts=%s' % (weeutil.weeutil.timestamp_to_string(self.history_cache.since_ts), weeutil.weeutil.timestamp_to_string(ts)))
-                    self.history_cache.next_index = get_next_index(thisIndex)
+                    self.history_cache.next_index = thisIndex
                 else:
                     logdbg('handleHistoryData: index mismatch: %s != %s' %
                            (self.history_cache.next_index, thisIndex))
@@ -3683,7 +3748,8 @@ class CCommunicationService(object):
         if self.command == EAction.aGetHistory:
             newlen[0] = self.buildACKFrame(newbuf, EAction.aGetHistory, cs, nextIndex)
         else:
-            newlen[0] = self.buildACKFrame(newbuf, EAction.aGetCurrent, cs)
+            write_history_index(filename, latestIndex, ts)
+            newlen[0] = self.buildACKFrame(newbuf, EAction.aGetHistory, cs)
 
         buflen[0] = newlen[0]
         buf[0] = newbuf[0]
@@ -3940,6 +4006,8 @@ class CCommunicationService(object):
     def startCachingHistory(self, since_ts=0, num_rec=0):
         self.history_cache.clear_records()
         self.history_cache.since_ts = since_ts
+        if num_rec > WS28xx.max_records - 2:
+            num_rec = WS28xx.max_records - 2
         self.history_cache.num_rec = num_rec
         self.command = EAction.aGetHistory
 
