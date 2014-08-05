@@ -3708,10 +3708,22 @@ class CCommunicationService(object):
                     logdbg('handleHistoryData: request catchup')
                     idx = last_idx
                     self.history_cache.since_ts = last_ts
+                if nrec_ws < WS28xx.max_records - 2 and idx > latestIndex:
+                    # these history records have initial ff data
+                    logdbg('handleHistoryData: too many records requested:'
+                           ' requested=%s actual=%s' %
+                           (self.history_cache.num_rec, latestIndex))
+                    idx = thisIndex
+                    self.history_cache.since_ts = ts
                 self.history_cache.start_index = idx
                 self.history_cache.next_index = idx
                 logdbg('handleHistoryData: set start_index=%d' % idx)
                 nextIndex = idx
+                nrec = get_index(latestIndex - nextIndex)
+                self.DataStore.setLastHistoryIndex(nextIndex)
+                self.history_cache.num_outstanding_records = nrec
+                logdbg('handleHistoryData: lastHistoryIndex=%s'
+                       ' num_outstanding_records=%s' % (nextIndex, nrec))
             elif self.history_cache.next_index is not None:
                 write_history_index(filename, thisIndex, ts)
                 # thisIndex should be the next record after next_index
@@ -3724,7 +3736,7 @@ class CCommunicationService(object):
                             logdbg('handleHistoryData: remove previous record'
                                    ' with duplicate timestamp: %s' %
                                    weeutil.weeutil.timestamp_to_string(ts))
-                            self.history_cahce.records.pop()
+                            self.history_cache.records.pop()
                         self.history_cache.last_ts = ts
                         # append to the history if timestamp in desired range
                         # the first record already exists in the database, but
@@ -3738,7 +3750,8 @@ class CCommunicationService(object):
                     self.history_cache.next_index = thisIndex
                 else:
                     logdbg('handleHistoryData: index mismatch: %s != %s' %
-                           (self.history_cache.next_index, thisIndex))
+                           (get_next_index(self.history_cache.next_index),
+                            thisIndex))
                 nextIndex = self.history_cache.next_index
 
         logdbg('handleHistoryData: next=%s' % nextIndex)
