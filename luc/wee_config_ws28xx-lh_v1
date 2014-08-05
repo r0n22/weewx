@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# $Id: wee_config_ws28xx 2291 2014-06-23 21:38:08Z mwall $
+#!/opt/bin/python2.6
+# $Id: wee_config_ws28xx-0.28 2293 2014-06-23 21:46:23Z mwall $
 #
 # Copyright 2013 Matthew Wall
 #
@@ -221,35 +221,40 @@ def history(station, maxtries, ts=0, count=0):
     specified timestamp (local time, in seconds)"""
     print "Querying the station for historical records..."
     ntries = 0
-    last_n = n = nrem = None
+    last_n = n = None
     last_ts = now = int(time.time())
     station.start_caching_history(since_ts=ts, num_rec=count)
-    while nrem is None or nrem > 0:
+    while n is None or n > 0:
         if ntries >= maxtries:
             print 'Giving up after %d tries' % ntries
             break
         time.sleep(30)
-        ntries += 1
         now = int(time.time())
         n = station.get_num_history_scanned()
         if n == last_n:
+            ntries += 1
             dur = now - last_ts
             print 'No data after %d seconds (press SET to sync)' % dur
         else:
             ntries = 0
             last_ts = now
         last_n = n
-        nrem = station.get_uncached_history_count()
         ni = station.get_next_history_index()
         li = station.get_latest_history_index()
-        msg = "  scanned %s records: current=%s latest=%s remaining=%s\r" % (n, ni, li, nrem)
+        t = li - ni
+        if t < 0:
+            t += 1797
+        msg = "  scanned %s records, remaining %s: current=%s latest=%s\r" % (n, t, ni, li)
         sys.stdout.write(msg)
         sys.stdout.flush()
+        if ni == li:
+            print ' All records scanned'
+            break
     station.stop_caching_history()
     records = station.get_history_cache_records()
     station.clear_history_cache()
     print
-    print 'Found %d records' % len(records)
+    print 'Found a total of %d records' % len(records)
     for r in records:
         print r
 
