@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# $Id: ws28xx.py 2310 2014-07-25 03:22:50Z dennypage $
+# $Id$
 #
 # Copyright 2013 Matthew Wall
 #
@@ -924,7 +924,6 @@ Step 8. Go to step 1 to wait for state 0xde16 again.
 """
 
 # TODO: how often is currdat.lst modified with/without hi-speed mode?
-# TODO: during weewx startup, do 'catchup' of old history records
 # TODO: thread locking around observation data
 # TODO: eliminate polling, make MainThread get data as soon as RFThread updates
 # TODO: eliminate pressure_offset and use StdCalibrate instead?
@@ -945,7 +944,7 @@ import weewx.units
 import weewx.wxformulas
 import weeutil.weeutil
 
-DRIVER_VERSION = '0.28'
+DRIVER_VERSION = '0.29'
 
 # flags for enabling/disabling debug verbosity
 DEBUG_WRITES = 0
