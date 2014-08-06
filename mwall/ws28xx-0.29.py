@@ -1037,8 +1037,8 @@ def write_history_index(filename, idx, ts):
         logdbg("save history index: %s %s" % (idx, weeutil.weeutil.timestamp_to_string(ts)))
     try:
         with open(filename, 'w') as f:
-            f.write("index=%s" % idx)
-            f.write("timestamp=%s" % ts)
+            f.write("index=%s\n" % idx)
+            f.write("timestamp=%s\n" % ts)
     except Exception, e:
         logerr("cannot save history index to %s: %s" % (filename, e))
 
@@ -3624,9 +3624,10 @@ class CCommunicationService(object):
             newLength[0] = self.buildACKFrame(newBuffer, EAction.aReqSetConfig, cs)
         else:
             # Request for either a history message or a current weather message
-            # In general we don't use EAction.aGetCurrent to ask for a current weather 
-            # message; they also come when requested for EAction.aGetHistory.
-            # This we learned from the Heavy Weather Pro messages (via USB sniffer).
+            # In general we don't use EAction.aGetCurrent to ask for a current
+            # weather  message; they also come when requested for
+            # EAction.aGetHistory. This we learned from the Heavy Weather Pro
+            # messages (via USB sniffer).
             self.setSleep(0.300,0.010)
             newLength[0] = self.buildACKFrame(newBuffer, EAction.aGetHistory, cs)
 
