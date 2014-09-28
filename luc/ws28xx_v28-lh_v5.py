@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# $Id: ws28xx-0.28.py 2293 2014-06-23 21:46:23Z mwall $
+# $Id$
 #
 # Copyright 2013 Matthew Wall
 #
