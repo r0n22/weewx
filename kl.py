@@ -1,5 +1,5 @@
 # TFA KlimaLogg driver for weewx
-# $Id: kl-0.24.py 2831 2015-01-06 17:41:09Z mwall $
+# $Id$
 #
 # Copyright 2014 Matthew Wall / Luc Heijst
 #
