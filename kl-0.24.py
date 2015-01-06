@@ -50,40 +50,42 @@ KlimaLogg driver settings in weewx.conf:
     polling_interval = 10
     comm_interval = 6
 
-    # debug flags: 0=no logging; 1=minimum logging; 2=normal logging; 3=detailed logging
+    # debug flags:
+    #  0=no logging; 1=minimum logging; 2=normal logging; 3=detailed logging
     debug_comm = 2
     debug_config_data = 2
     debug_weather_data = 2
     debug_history_data = 2
     debug_dump_format = auto
 
-    # You may change the sensor mapping by changing the values in the right column.
-    # Be sure you use valid weewx database field names; each field name can be used only once
-    # Example (to switch the mapping of extra sensors 1 and 4 when sensor 4 is the outside sensor):
-    #    _Temp1      = extraTemp3
-    #    _Humidity1  = leafWet1
-    #    _Temp4      = outTemp
-    #    _Humidity4  = outHumidity
+    # You may change the sensor mapping by changing the values in the right
+    # column. Be sure you use valid weewx database field names; each field
+    # name can be used only once. Example (to switch the mapping of extra
+    # sensors 1 and 4 when sensor 4 is the outside sensor):
+    #    Temp1      = extraTemp3
+    #    Humidity1  = leafWet1
+    #    Temp4      = outTemp
+    #    Humidity4  = outHumidity
     #
     [[sensor_map]]
-        _TempIn     = inTemp
-        _HumidityIn = inHumidity
-        _Temp1      = outTemp
-        _Humidity1  = outHumidity
-        _Temp2      = extraTemp1
-        _Humidity2  = extraHumid1
-        _Temp3      = extraTemp2
-        _Humidity3  = extraHumid2
-        _Temp4      = extraTemp3
-        _Humidity4  = leafWet1
-        _Temp5      = soilTemp1
-        _Humidity5  = soilMoist1
-        _Temp6      = soilTemp2
-        _Humidity6  = soilMoist2
-        _Temp7      = soilTemp3
-        _Humidity7  = soilMoist3
-        _Temp8      = soilTemp4
-        _Humidity8  = soilMoist4
+        TempIn     = inTemp
+        HumidityIn = inHumidity
+        Temp1      = outTemp
+        Humidity1  = outHumidity
+        Temp2      = extraTemp1
+        Humidity2  = extraHumid1
+        Temp3      = extraTemp2
+        Humidity3  = extraHumid2
+        Temp4      = extraTemp3
+        Humidity4  = leafWet1
+        Temp5      = soilTemp1
+        Humidity5  = soilMoist1
+        Temp6      = soilTemp2
+        Humidity6  = soilMoist2
+        Temp7      = soilTemp3
+        Humidity7  = soilMoist3
+        Temp8      = soilTemp4
+        Humidity8  = soilMoist4
 
 ##############################################################################
 
@@ -111,9 +113,6 @@ paired, the transceiver is always listening.  The station console sends a
 broadcast on the hour.  If the transceiver responds, the station console may
 continue to broadcast data, depending on the transceiver response and the
 timing of the transceiver response.
-
-According to the C86234 Operations Manual (Revision 7):
- - Temperature and humidity data are sent to the console every 13 seconds.
 
 The following information was obtained by logging messages from the kl.py
 driver in weewx and by capturing USB messages between KlimaLoggPro 
@@ -391,113 +390,113 @@ Additional bytes transceiver data
 
 Note: if start == x.5: StartOnLowNibble else: StartOnHiNibble
       
-start	chars	name
-0	    4	DevID
-2	    2	'00' (Unknown data)
-3	    2	Action
-4	    2	% sent
-5	    4	DeviceCS
-7	    8	HumidityIn_MinMax._Max._Time
-11	    8	HumidityIn_MinMax._Min._Time
-15	    2	HumidityIn_MinMax._Max._Value
-16	    2	HumidityIn_MinMax._Min._Value
-17	    2	HumidityIn
-18	    1	'0'
-18.5	8	TempIn_MinMax._Max._Time
-22.5	8	TempIn_MinMax._Min._Time
-26.5	3	TempIn_MinMax._Max._Value
-28	    3	TempIn_MinMax._Min._Value
-29.5	3	TempIn
-31	    8	Humidity1_MinMax._Max._Time
-35	    8	Humidity1_MinMax._Min._Time
-39	    2	Humidity1_MinMax._Max._Value
-40	    2	Humidity1_MinMax._Min._Value
-41	    2	Humidity1
-42	    1	'0'
-42.5	8	Temp1_MinMax._Max._Time
-46.5	8	Temp1_MinMax._Min._Time
-50.5	3	Temp1_MinMax._Max._Value
-52	    3	Temp1_MinMax._Min._Value
-53.5	3	Temp1
-55	    8	Humidity2_MinMax._Max._Time
-59	    8	Humidity2_MinMax._Min._Time
-63	    2	Humidity2_MinMax._Max._Value
-64	    2	Humidity2_MinMax._Min._Value
-65	    2	Humidity2
-66	    1	'0'
-66.5	8	Temp2_MinMax._Max._Time
-70.5	8	Temp2_MinMax._Min._Time
-74.5	3	Temp2_MinMax._Max._Value
-76	    3	Temp2_MinMax._Min._Value
-77.5	3	Temp2
-79	    8	Humidity3_MinMax._Max._Time
-83	    8	Humidity3_MinMax._Min._Time
-87	    2	Humidity3_MinMax._Max._Value
-88	    2	Humidity3_MinMax._Min._Value
-89	    2	Humidity3
-90	    1	'0'
-90.5	8	Temp3_MinMax._Max._Time
-94.5	8	Temp3_MinMax._Min._Time
-98.5	3	Temp3_MinMax._Max._Value
-100	    3	Temp3_MinMax._Min._Value
-101.5	3	Temp3
-103	    8	Humidity4_MinMax._Max._Time
-107	    8	Humidity4_MinMax._Min._Time
-111	    2	Humidity4_MinMax._Max._Value
-112	    2	Humidity4_MinMax._Min._Value
-113	    2	Humidity4
-114	    1	'0'
-114.5	8	Temp4_MinMax._Max._Time
-118.5	8	Temp4_MinMax._Min._Time
-122.5	3	Temp4_MinMax._Max._Value
-124	    3	Temp4_MinMax._Min._Value
-125.5	3	Temp4
-127	    8	Humidity5_MinMax._Max._Time
-131	    8	Humidity5_MinMax._Min._Time
-135	    2	Humidity5_MinMax._Max._Value
-136	    2	Humidity5_MinMax._Min._Value
-137	    2	Humidity5
-138	    1	'0'
-138.5	8	Temp5_MinMax._Max._Time
-142.5	8	Temp5_MinMax._Min._Time
-146.5	3	Temp5_MinMax._Max._Value
-148	    3	Temp5_MinMax._Min._Value
-149.5	3	Temp5
-151	    8	Humidity6_MinMax._Max._Time
-155	    8	Humidity6_MinMax._Min._Time
-159	    2	Humidity6_MinMax._Max._Value
-160	    2	Humidity6_MinMax._Min._Value
-161	    2	Humidity6
-162	    1	'0'
-162.5	8	Temp6_MinMax._Max._Time
-166.5	8	Temp6_MinMax._Min._Time
-170.5	3	Temp6_MinMax._Max._Value
-172	    3	Temp6_MinMax._Min._Value
-173.5	3	Temp6
-175	    8	Humidity7_MinMax._Max._Time
-179	    8	Humidity7_MinMax._Min._Time
-183	    2	Humidity7_MinMax._Max._Value
-184	    2	Humidity7_MinMax._Min._Value
-185	    2	Humidity7
-186	    1	'0'
-186.5	8	Temp7_MinMax._Max._Time
-190.5	8	Temp7_MinMax._Min._Time
-194.5	3	Temp7_MinMax._Max._Value
-196	    3	Temp7_MinMax._Min._Value
-197.5	3	Temp7
-199	    8	Humidity8_MinMax._Max._Time
-203	    8	Humidity8_MinMax._Min._Time
-207	    2	Humidity8_MinMax._Max._Value
-208	    2	Humidity8_MinMax._Min._Value
-209	    2	Humidity8
-210	    1	'0'
-210.5	8	Temp8_MinMax._Max._Time
-214.5	8	Temp8_MinMax._Min._Time
-218.5	3	Temp8_MinMax._Max._Value
-220	    3	Temp8_MinMax._Min._Value
-221.5	3	Temp8
-223	    12	'000000000000' (Unknown data)
-229	    0	end
+start  chars name
+0      4  DevID
+2      2  '00' (Unknown data)
+3      2  Action
+4      2  % sent
+5      4  DeviceCS
+7      8  Humidity0_MinMax._Max.DateTime
+11     8  Humidity0_MinMax._Min.DateTime
+15     2  Humidity0_MinMax._Max._Value
+16     2  Humidity0_MinMax._Min._Value
+17     2  Humidity0
+18     1  '0'
+18.5   8  Temp0_MinMax._Max.DateTime
+22.5   8  Temp0_MinMax._Min.DateTime
+26.5   3  Temp0_MinMax._Max._Value
+28     3  Temp0_MinMax._Min._Value
+29.5   3  Temp0
+31     8  Humidity1_MinMax._Max.DateTime
+35     8  Humidity1_MinMax._Min.DateTime
+39     2  Humidity1_MinMax._Max._Value
+40     2  Humidity1_MinMax._Min._Value
+41     2  Humidity1
+42     1  '0'
+42.5   8  Temp1_MinMax._Max.DateTime
+46.5   8  Temp1_MinMax._Min.DateTime
+50.5   3  Temp1_MinMax._Max._Value
+52     3  Temp1_MinMax._Min._Value
+53.5   3  Temp1
+55     8  Humidity2_MinMax._Max.DateTime
+59     8  Humidity2_MinMax._Min.DateTime
+63     2  Humidity2_MinMax._Max._Value
+64     2  Humidity2_MinMax._Min._Value
+65     2  Humidity2
+66     1  '0'
+66.5   8  Temp2_MinMax._Max.DateTime
+70.5   8  Temp2_MinMax._Min.DateTime
+74.5   3  Temp2_MinMax._Max._Value
+76     3  Temp2_MinMax._Min._Value
+77.5   3  Temp2
+79     8  Humidity3_MinMax._Max.DateTime
+83     8  Humidity3_MinMax._Min.DateTime
+87     2  Humidity3_MinMax._Max._Value
+88     2  Humidity3_MinMax._Min._Value
+89     2  Humidity3
+90     1  '0'
+90.5   8  Temp3_MinMax._Max.DateTime
+94.5   8  Temp3_MinMax._Min.DateTime
+98.5   3  Temp3_MinMax._Max._Value
+100    3  Temp3_MinMax._Min._Value
+101.5  3  Temp3
+103    8  Humidity4_MinMax._Max.DateTime
+107    8  Humidity4_MinMax._Min.DateTime
+111    2  Humidity4_MinMax._Max._Value
+112    2  Humidity4_MinMax._Min._Value
+113    2  Humidity4
+114    1  '0'
+114.5  8  Temp4_MinMax._Max.DateTime
+118.5  8  Temp4_MinMax._Min.DateTime
+122.5  3  Temp4_MinMax._Max._Value
+124    3  Temp4_MinMax._Min._Value
+125.5  3  Temp4
+127    8  Humidity5_MinMax._Max.DateTime
+131    8  Humidity5_MinMax._Min.DateTime
+135    2  Humidity5_MinMax._Max._Value
+136    2  Humidity5_MinMax._Min._Value
+137    2  Humidity5
+138    1  '0'
+138.5  8  Temp5_MinMax._Max.DateTime
+142.5  8  Temp5_MinMax._Min.DateTime
+146.5  3  Temp5_MinMax._Max._Value
+148    3  Temp5_MinMax._Min._Value
+149.5  3  Temp5
+151    8  Humidity6_MinMax._Max.DateTime
+155    8  Humidity6_MinMax._Min.DateTime
+159    2  Humidity6_MinMax._Max._Value
+160    2  Humidity6_MinMax._Min._Value
+161    2  Humidity6
+162    1  '0'
+162.5  8  Temp6_MinMax._Max.DateTime
+166.5  8  Temp6_MinMax._Min.DateTime
+170.5  3  Temp6_MinMax._Max._Value
+172    3  Temp6_MinMax._Min._Value
+173.5  3  Temp6
+175    8  Humidity7_MinMax._Max.DateTime
+179    8  Humidity7_MinMax._Min.DateTime
+183    2  Humidity7_MinMax._Max._Value
+184    2  Humidity7_MinMax._Min._Value
+185    2  Humidity7
+186    1  '0'
+186.5  8  Temp7_MinMax._Max.DateTime
+190.5  8  Temp7_MinMax._Min.DateTime
+194.5  3  Temp7_MinMax._Max._Value
+196    3  Temp7_MinMax._Min._Value
+197.5  3  Temp7
+199    8  Humidity8_MinMax._Max.DateTime
+203    8  Humidity8_MinMax._Min.DateTime
+207    2  Humidity8_MinMax._Max._Value
+208    2  Humidity8_MinMax._Min._Value
+209    2  Humidity8
+210    1  '0'
+210.5  8  Temp8_MinMax._Max.DateTime
+214.5  8  Temp8_MinMax._Min.DateTime
+218.5  3  Temp8_MinMax._Max._Value
+220    3  Temp8_MinMax._Min._Value
+221.5  3  Temp8
+223    12 '000000000000' (Unknown data)
+229    0  end
 
 -------------------------------------------------------------------------------
 date conversion: (2013-06-21)
@@ -545,8 +544,8 @@ Example of message in hex bytes:
 
 Example of debug log:
 
-Oct 26 19:28:55 TempIn=      31.9 _Min=  27.4 (2014-08-27 21:32:00)  _Max=  35.2 (2014-10-25 15:46:00)
-Oct 26 19:28:55 HumidityIn=  67.0 _Min=  45.0 (2014-09-03 15:20:00)  _Max=  78.0 (2014-09-22 21:17:00)
+Oct 26 19:28:55 Temp0=       31.9 _Min=  27.4 (2014-08-27 21:32:00)  _Max=  35.2 (2014-10-25 15:46:00)
+Oct 26 19:28:55 Humidity0=   67.0 _Min=  45.0 (2014-09-03 15:20:00)  _Max=  78.0 (2014-09-22 21:17:00)
 Oct 26 19:28:55 Temp1=       31.9 _Min=  27.4 (2014-08-27 21:32:00)  _Max=  35.2 (2014-10-25 15:46:00)
 Oct 26 19:28:55 Humidity1=   67.0 _Min=  45.0 (2014-09-03 15:20:00)  _Max=  78.0 (2014-09-22 21:17:00)
 Oct 26 19:28:55 Temp2=       31.9 _Min=  27.4 (2014-08-27 21:32:00)  _Max=  35.2 (2014-10-25 15:46:00)
@@ -569,136 +568,136 @@ Oct 26 19:28:55 Humidity8=   67.0 _Min=  45.0 (2014-09-03 15:20:00)  _Max=  78.0
 
 Note: if start == x.5: StartOnLowNibble else: StartOnHiNibble
 
-start	chars	note	name
-
-0	    4	1	DevID		
-2	    2		'00' (Unknown data)		
-3	    2	2	Action		
-4	    2	3	Quality		
-5	    4	4	DeviceCS		
-7	    6	5	LatestAddress		
-10	    6	6	ThisAddress		
-13	    2	7	Pos6_Humidity8		
-14	    2		Pos6_Humidity7		
-15	    2		Pos6_Humidity6		
-16	    2		Pos6_Humidity5		
-17	    2		Pos6_Humidity4		
-18	    2		Pos6_Humidity3		
-19	    2		Pos6_Humidity2		
-20	    2		Pos6_Humidity1		
-21	    2		Pos6_HumidityIn		
-22	    1		'0'		
-22.5	3		Pos6_Temp8		
-24	    3		Pos6_Temp7		
-25.5	3		Pos6_Temp6		
-27  	3		Pos6_Temp5		
-28.5	3		Pos6_Temp4		
-30	    3		Pos6_Temp3		
-31.5	3		Pos6_Temp2		
-33	    3		Pos6_Temp1		
-34.5	3		Pos6_TempIn		
-36	    10		Pos6_DateTime		
-41	    2		Pos5_Humidity8		
-42	    2		Pos5_Humidity7		
-43	    2		Pos5_Humidity6		
-44	    2		Pos5_Humidity5		
-45	    2		Pos5_Humidity4		
-46	    2		Pos5_Humidity3		
-47	    2		Pos5_Humidity2		
-48	    2		Pos5_Humidity1		
-49	    2		Pos5_HumidityIn		
-50	    1		'0'		
-50.5	3		Pos5_Temp8		
-52  	3		Pos5_Temp7		
-53.5	3		Pos5_Temp6		
-55	    3		Pos5_Temp5		
-56.5	3		Pos5_Temp4		
-58	    3		Pos5_Temp3		
-59.5	3		Pos5_Temp2		
-61	    3		Pos5_Temp1		
-62.5	3		Pos5_TempIn		
-64	    10		Pos5_DateTime		
-69	    2		Pos4_Humidity8		
-70	    2		Pos4_Humidity7		
-71	    2		Pos4_Humidity6		
-72	    2		Pos4_Humidity5		
-73	    2		Pos4_Humidity4		
-74	    2		Pos4_Humidity3		
-75	    2		Pos4_Humidity2		
-76	    2		Pos4_Humidity1		
-77	    2		Pos4_HumidityIn		
-78	    1		'0'		
-78.5	3		Pos4_Temp8		
-80	    3		Pos4_Temp7		
-81.5	3		Pos4_Temp6		
-83	    3		Pos4_Temp5		
-84.5	3		Pos4_Temp4		
-86	    3		Pos4_Temp3		
-87.5	3		Pos4_Temp2		
-89	    3		Pos4_Temp1		
-90.5	3		Pos4_TempIn		
-92	    10		Pos4_DateTime		
-97	    2		Pos3_Humidity8		
-98	    2		Pos3_Humidity7		
-99	    2		Pos3_Humidity6		
-100	    2		Pos3_Humidity5		
-101	    2		Pos3_Humidity4		
-102	    2		Pos3_Humidity3		
-103	    2		Pos3_Humidity2		
-104	    2		Pos3_Humidity1		
-105	    2		Pos3_HumidityIn		
-106	    1		'0'		
-106.5	3		Pos3_Temp8		
-108	    3		Pos3_Temp7		
-109.5	3		Pos3_Temp6		
-111	    3		Pos3_Temp5		
-112.5	3		Pos3_Temp4		
-114	    3		Pos3_Temp3		
-115.5	3		Pos3_Temp2		
-117	    3		Pos3_Temp1		
-118.5	3		Pos3_TempIn		
-120	    10		Pos3_DateTime		
-125	    2		Pos2_Humidity8		
-126	    2		Pos2_Humidity7		
-127	    2		Pos2_Humidity6		
-128	    2		Pos2_Humidity5		
-129	    2		Pos2_Humidity4		
-130	    2		Pos2_Humidity3		
-131	    2		Pos2_Humidity2		
-132	    2		Pos2_Humidity1		
-133	    2		Pos2_HumidityIn		
-134	    1		'0'		
-134.5	3		Pos2_Temp8		
-136	    3		Pos2_Temp7		
-137.5	3		Pos2_Temp6		
-139	    3		Pos2_Temp5		
-140.5	3		Pos2_Temp4		
-142	    3		Pos2_Temp3		
-143.5	3		Pos2_Temp2		
-145	    3		Pos2_Temp1		
-146.5	3		Pos2_TempIn		
-148	    10		Pos2_DateTime		
-153	2	8	Pos1_Humidity8		
-154	    2		Pos1_Humidity7		
-155	    2		Pos1_Humidity6		
-156	    2		Pos1_Humidity5		
-157	    2		Pos1_Humidity4		
-158	    2		Pos1_Humidity3		
-159	    2		Pos1_Humidity2		
-160	    2		Pos1_Humidity1		
-161	    2		Pos1_HumidityIn		
-162	    1		'0'		
-162.5	3		Pos1_Temp8		
-164	    3		Pos1_Temp7		
-165.5	3		Pos1_Temp6		
-167	    3		Pos1_Temp5		
-168.5	3		Pos1_Temp4		
-170	    3		Pos1_Temp3		
-171.5	3		Pos1_Temp2		
-173	    3		Pos1_Temp1		
-174.5	3		Pos1_TempIn		
-176	    10		Pos1_DateTime		
-181	    0		End message
+start   chars note  name
+%
+0       4     1     DevID
+2       2          '00' (Unknown data)
+3       2     2     Action
+4       2     3     Quality
+5       4     4     DeviceCS
+7       6     5     LatestAddress
+10      6     6     ThisAddress
+13      2     7     Pos6Humidity8
+14      2           Pos6Humidity7
+15      2           Pos6Humidity6
+16      2           Pos6Humidity5
+17      2           Pos6Humidity4
+18      2           Pos6Humidity3
+19      2           Pos6Humidity2
+20      2           Pos6Humidity1
+21      2           Pos6HumidityIn
+22      1           '0'
+22.5    3           Pos6Temp8     
+24      3           Pos6Temp7
+25.5    3           Pos6Temp6
+27      3           Pos6Temp5
+28.5    3           Pos6Temp4
+30      3           Pos6Temp3
+31.5    3           Pos6Temp2
+33      3           Pos6Temp1
+34.5    3           Pos6TempIn
+36     10           Pos6_DateTime
+41      2           Pos5Humidity8
+42      2           Pos5Humidity7
+43      2           Pos5Humidity6
+44      2           Pos5Humidity5
+45      2           Pos5Humidity4
+46      2           Pos5Humidity3
+47      2           Pos5Humidity2
+48      2           Pos5Humidity1
+49      2           Pos5HumidityIn
+50      1           '0'
+50.5    3           Pos5Temp8
+52      3           Pos5Temp7
+53.5    3           Pos5Temp6
+55      3           Pos5Temp5
+56.5    3           Pos5Temp4
+58      3           Pos5Temp3
+59.5    3           Pos5Temp2
+61      3           Pos5Temp1
+62.5    3           Pos5TempIn
+64     10           Pos5_DateTime
+69      2           Pos4Humidity8
+70      2           Pos4Humidity7
+71      2           Pos4Humidity6
+72      2           Pos4Humidity5
+73      2           Pos4Humidity4
+74      2           Pos4Humidity3
+75      2           Pos4Humidity2
+76      2           Pos4Humidity1
+77      2           Pos4HumidityIn
+78      1           '0'
+78.5    3           Pos4Temp8
+80      3           Pos4Temp7
+81.5    3           Pos4Temp6
+83      3           Pos4Temp5
+84.5    3           Pos4Temp4
+86      3           Pos4Temp3
+87.5    3           Pos4Temp2
+89      3           Pos4Temp1
+90.5    3           Pos4TempIn
+92     10           Pos4_DateTime
+97      2           Pos3Humidity8
+98      2           Pos3Humidity7
+99      2           Pos3Humidity6
+100     2           Pos3Humidity5
+101     2           Pos3Humidity4
+102     2           Pos3Humidity3
+103     2           Pos3Humidity2
+104     2           Pos3Humidity1
+105     2           Pos3HumidityIn
+106     1           '0'
+106.5   3           Pos3Temp8
+108     3           Pos3Temp7
+109.5   3           Pos3Temp6
+111     3           Pos3Temp5
+112.5   3           Pos3Temp4
+114     3           Pos3Temp3
+115.5   3           Pos3Temp2
+117     3           Pos3Temp1
+118.5   3           Pos3TempIn
+120    10           Pos3_DateTime
+125     2           Pos2Humidity8
+126     2           Pos2Humidity7
+127     2           Pos2Humidity6
+128     2           Pos2Humidity5
+129     2           Pos2Humidity4
+130     2           Pos2Humidity3
+131     2           Pos2Humidity2
+132     2           Pos2Humidity1
+133     2           Pos2HumidityIn
+134     1           '0'
+134.5   3           Pos2Temp8
+136     3           Pos2Temp7
+137.5   3           Pos2Temp6
+139     3           Pos2Temp5
+140.5   3           Pos2Temp4
+142     3           Pos2Temp3
+143.5   3           Pos2Temp2
+145     3           Pos2Temp1
+146.5   3           Pos2TempIn
+148    10           Pos2_DateTime
+153     2     8     Pos1Humidity8
+154     2           Pos1Humidity7
+155     2           Pos1Humidity6
+156     2           Pos1Humidity5
+157     2           Pos1Humidity4
+158     2           Pos1Humidity3
+159     2           Pos1Humidity2
+160     2           Pos1Humidity1
+161     2           Pos1HumidityIn
+162     1           '0'
+162.5   3           Pos1Temp8
+164     3           Pos1Temp7
+165.5   3           Pos1Temp6
+167     3           Pos1Temp5
+168.5   3           Pos1Temp4
+170     3           Pos1Temp3
+171.5   3           Pos1Temp2
+173     3           Pos1Temp1
+174.5   3           Pos1TempIn
+176    10           Pos1_DateTime
+181     0           End message
 
 Notes:
 
@@ -905,15 +904,6 @@ Step 8. Go to step 1 to wait for state 0xde16 again.
 
 """
 
-# TODO: how often is currdat.lst modified with/without hi-speed mode?
-# TODO: thread locking around observation data
-# TODO: eliminate polling, make MainThread get data as soon as RFThread updates
-# TODO: get rid of Length/Buffer construct, replace with a Buffer class or obj
-
-# FIXME: the history retrieval assumes a constant archive interval across all
-#        history records.  this means anything that modifies the archive
-#        interval should clear the history.
-
 from datetime import datetime
 
 import StringIO
@@ -929,7 +919,7 @@ import weewx.wxformulas
 import weeutil.weeutil
 
 DRIVER_NAME = 'KlimaLogg'
-DRIVER_VERSION = '0.'
+DRIVER_VERSION = '0.24'
 
 
 def loader(config_dict, engine):
@@ -949,26 +939,26 @@ DEBUG_WEATHER_DATA = 0
 DEBUG_HISTORY_DATA = 0
 DEBUG_DUMP_FORMAT = 'auto'
 
-# map the base sensor and the 8 remote sensors to columns in the database schema
+# map the base sensor and 8 remote sensors to columns in the database schema
 DEFAULT_SENSOR_MAP = {
-    '_TempIn':     'inTemp',
-    '_HumidityIn': 'inHumidity',
-    '_Temp1':      'outTemp',
-    '_Humidity1':  'outHumidity',
-    '_Temp2':      'extraTemp1',
-    '_Humidity2':  'extraHumid1',
-    '_Temp3':      'extraTemp2',
-    '_Humidity3':  'extraHumid2',
-    '_Temp4':      'extraTemp3',
-    '_Humidity4':  'leafWet1',
-    '_Temp5':      'soilTemp1',
-    '_Humidity5':  'soilMoist1',
-    '_Temp6':      'soilTemp2',
-    '_Humidity6':  'soilMoist2',
-    '_Temp7':      'soilTemp3',
-    '_Humidity7':  'soilMoist3',
-    '_Temp8':      'soilTemp4',
-    '_Humidity8':  'soilMoist4',
+    'Temp0':      'inTemp',
+    'Humidity0':  'inHumidity',
+    'Temp1':      'outTemp',
+    'Humidity1':  'outHumidity',
+    'Temp2':      'extraTemp1',
+    'Humidity2':  'extraHumid1',
+    'Temp3':      'extraTemp2',
+    'Humidity3':  'extraHumid2',
+    'Temp4':      'extraTemp3',
+    'Humidity4':  'leafWet1',
+    'Temp5':      'soilTemp1',
+    'Humidity5':  'soilMoist1',
+    'Temp6':      'soilTemp2',
+    'Humidity6':  'soilMoist2',
+    'Temp7':      'soilTemp3',
+    'Humidity7':  'soilMoist3',
+    'Temp8':      'soilTemp4',
+    'Humidity8':  'soilMoist4',
 }
 
 def logmsg(dst, msg):
@@ -1053,6 +1043,7 @@ def addr_to_index(addr):
 
 def index_to_addr(idx):
     return 32 * idx + 0x070000
+
 
 class KlimaLoggConfEditor(weewx.drivers.AbstractConfEditor):
     @property
@@ -1150,7 +1141,7 @@ class KlimaLoggConfigurator(weewx.drivers.AbstractConfigurator):
         cfg = self.get_config(maxtries)
         if cfg is None:
             return None
-        return getHistoryInterval(cfg['history_interval'])
+        return history_intervals.get(cfg['history_interval'])
 
     def get_config(self, maxtries):
         start_ts = None
@@ -1407,24 +1398,6 @@ class KlimaLoggDriver(weewx.drivers.AbstractDevice):
                 yield r
             last_ts = r['dateTime']
 
-# FIXME: do not implement hardware record generation until we figure
-# out how to query the historical records faster.
-#    def _catchup(self, since_ts):
-#        pass
-
-# FIXME: implement retries for this so that rf thread has time to get
-# configuration data from the station
-#    @property
-#    def archive_interval(self):
-#        cfg = self.get_config()
-#        return getHistoryInterval(cfg['history_interval']) * 60
-
-# FIXME: implement set/get time
-#    def setTime(self):
-#        pass
-#    def getTime(self):
-#        pass
-
     def startUp(self):
         if self._service is not None:
             return
@@ -1454,9 +1427,19 @@ class KlimaLoggDriver(weewx.drivers.AbstractDevice):
     def get_last_contact(self):
         return self._service.getLastStat().last_seen_ts
 
+    SENSOR_KEYS = ['Temp0', 'Humidity0',
+                   'Temp1', 'Humidity1',
+                   'Temp2', 'Humidity2',
+                   'Temp3', 'Humidity3',
+                   'Temp4', 'Humidity4',
+                   'Temp5', 'Humidity5',
+                   'Temp6', 'Humidity6',
+                   'Temp7', 'Humidity7',
+                   'Temp8', 'Humidity8']
+
     def get_observation(self):
         data = self._service.getWeatherData()
-        ts = data._timestamp
+        ts = data.values['timestamp']
         if ts is None:
             return None
 
@@ -1465,97 +1448,20 @@ class KlimaLoggDriver(weewx.drivers.AbstractDevice):
         packet['usUnits'] = weewx.METRIC
         packet['dateTime'] = ts
 
-        # data from the station sensors
-        sensor_data = get_datum_diff(data._TempIn,
-                                     CWeatherTraits.TemperatureNP(),
-                                     CWeatherTraits.TemperatureOFL())
-        if sensor_data is not None:
-            packet[self.sensor_map['_TempIn']] = sensor_data
-        sensor_data = get_datum_diff(data._HumidityIn,
-                                     CWeatherTraits.HumidityNP(),
-                                     CWeatherTraits.HumidityOFL())
-        if sensor_data is not None:
-            packet[self.sensor_map['_HumidityIn']] = sensor_data
-        sensor_data = get_datum_diff(data._Temp1,
-                                     CWeatherTraits.TemperatureNP(),
-                                     CWeatherTraits.TemperatureOFL())
-        if sensor_data is not None:
-            packet[self.sensor_map['_Temp1']] = sensor_data
-        sensor_data = get_datum_diff(data._Humidity1,
-                                     CWeatherTraits.HumidityNP(),
-                                     CWeatherTraits.HumidityOFL())
-        if sensor_data is not None:
-            packet[self.sensor_map['_Humidity1']] = sensor_data
-        sensor_data = get_datum_diff(data._Temp2,
-                                     CWeatherTraits.TemperatureNP(),
-                                     CWeatherTraits.TemperatureOFL())
-        if sensor_data is not None:
-            packet[self.sensor_map['_Temp2']] = sensor_data
-        sensor_data = get_datum_diff(data._Humidity2,
-                                     CWeatherTraits.HumidityNP(),
-                                     CWeatherTraits.HumidityOFL())
-        if sensor_data is not None:
-            packet[self.sensor_map['_Humidity2']] = sensor_data
-        sensor_data = get_datum_diff(data._Temp3,
-                                     CWeatherTraits.TemperatureNP(),
-                                     CWeatherTraits.TemperatureOFL())
-        if sensor_data is not None:
-            packet[self.sensor_map['_Temp3']] = sensor_data
-        sensor_data = get_datum_diff(data._Humidity3,
-                                     CWeatherTraits.TemperatureNP(),
-                                     CWeatherTraits.TemperatureOFL())
-        if sensor_data is not None:
-            packet[self.sensor_map['_Humidity3']] = sensor_data
-        sensor_data = get_datum_diff(data._Temp4,
-                                     CWeatherTraits.TemperatureNP(),
-                                     CWeatherTraits.TemperatureOFL())
-        if sensor_data is not None:
-            packet[self.sensor_map['_Temp4']] = sensor_data
-        sensor_data = get_datum_diff(data._Humidity4,
-                                     CWeatherTraits.HumidityNP(),
-                                     CWeatherTraits.HumidityOFL())
-        if sensor_data is not None:
-            packet[self.sensor_map['_Humidity4']] = sensor_data
-        sensor_data = get_datum_diff(data._Temp5,
-                                     CWeatherTraits.TemperatureNP(),
-                                     CWeatherTraits.TemperatureOFL())
-        if sensor_data is not None:
-            packet[self.sensor_map['_Temp5']] = sensor_data
-        sensor_data = get_datum_diff(data._Humidity5,
-                                     CWeatherTraits.HumidityNP(),
-                                     CWeatherTraits.HumidityOFL())
-        if sensor_data is not None:
-            packet[self.sensor_map['_Humidity5']] = sensor_data
-        sensor_data = get_datum_diff(data._Temp6,
-                                     CWeatherTraits.TemperatureNP(),
-                                     CWeatherTraits.TemperatureOFL())
-        if sensor_data is not None:
-            packet[self.sensor_map['_Temp6']] = sensor_data
-        sensor_data = get_datum_diff(data._Humidity6,
-                                     CWeatherTraits.HumidityNP(),
-                                     CWeatherTraits.HumidityOFL())
-        if sensor_data is not None:
-            packet[self.sensor_map['_Humidity6']] = sensor_data
-        sensor_data = get_datum_diff(data._Temp7,
-                                     CWeatherTraits.TemperatureNP(),
-                                     CWeatherTraits.TemperatureOFL())
-        if sensor_data is not None:
-            packet[self.sensor_map['_Temp7']] = sensor_data
-        sensor_data = get_datum_diff(data._Humidity7,
-                                     CWeatherTraits.HumidityNP(),
-                                     CWeatherTraits.HumidityOFL())
-        if sensor_data is not None:
-            packet[self.sensor_map['_Humidity7']] = sensor_data
-        sensor_data = get_datum_diff(data._Temp8,
-                                     CWeatherTraits.TemperatureNP(),
-                                     CWeatherTraits.TemperatureOFL())
-        if sensor_data is not None:
-            packet[self.sensor_map['_Temp8']] = sensor_data
-        sensor_data = get_datum_diff(data._Humidity8,
-                                     CWeatherTraits.HumidityNP(),
-                                     CWeatherTraits.HumidityOFL())
-        if sensor_data is not None:
-            packet[self.sensor_map['_Humidity8']] = sensor_data
+        # extract the values from the data object
+        for k in self.SENSOR_KEYS:
+            if k in self.sensor_map and k in data.values:
+                if k.startswith('Temp'):
+                    x = get_datum_diff(data.values[k],
+                                       SensorLimits.temperature_NP,
+                                       SensorLimits.temperature_OFL)
+                elif k.startswith('Humidity'):
+                    x = get_datum_diff(data.values[k],
+                                       SensorLimits.humidity_NP,
+                                       SensorLimits.humidity_OFL)
+                else:
+                    x = data.values[k]
+                packet[self.sensor_map[k]] = x
 
         # track the signal strength and battery levels
         ###lh TODO
@@ -1655,14 +1561,6 @@ class EHistoryInterval:
     hi04Std          = 8
     hi06Std          = 9
 
-class ETemperatureFormat:
-    tfFahrenheit     = 0
-    tfCelsius        = 1
-
-class EClockMode:
-    ct24H            = 0
-    ctAmPm           = 1
-
 ###lh TODO: sort out these flags for KlimaLogg Pro
 class EResetMinMaxFlags:
     rmTempInHi   = 0
@@ -1729,7 +1627,7 @@ def getFrequencyStandard(frequency):
 ###lh TODO: sort out battery flags KlimaLogg Pro with 0-8 sensors
 
 history_intervals = {
-    ### history intervals not know yet; this is a first guess
+    # FIXME: history intervals not known yet; this is a first guess
     EHistoryInterval.hi01Min: 1,
     EHistoryInterval.hi05Min: 5,
     EHistoryInterval.hi10Min: 10,
@@ -1741,50 +1639,14 @@ history_intervals = {
     EHistoryInterval.hi06Std: 360,
     }
 
-def getHistoryInterval(i):
-    return history_intervals.get(i)
-
 # NP - not present
 # OFL - outside factory limits
-class CWeatherTraits(object):
-
-    @staticmethod
-    def TemperatureNP():
-        return 81.1
-
-    @staticmethod
-    def TemperatureOFL():
-        return 136.0
-
-    @staticmethod
-    def HumidityNP():
-        return 110.0
-
-    @staticmethod
-    def HumidityOFL():
-        return 121.0
-
-    @staticmethod
-    def TemperatureOffset():
-        return 40.0
-
-class CMeasurement:
-    _Value = 0.0
-    _ResetFlag = 23
-    _IsError = 1
-    _IsOverflow = 1
-    _Time = None
-
-    def Reset(self):
-        self._Value = 0.0
-        self._ResetFlag = 23
-        self._IsError = 1
-        self._IsOverflow = 1
-
-class CMinMaxMeasurement(object):
-    def __init__(self):
-        self._Min = CMeasurement()
-        self._Max = CMeasurement()
+class SensorLimits:
+    temperature_offset = 40.0
+    temperature_NP = 81.1
+    temperature_OFL = 136.0
+    humidity_NP = 110.0
+    humidity_OFL = 121.0
 
 class USBHardware(object):
     @staticmethod
@@ -2011,9 +1873,9 @@ class USBHardware(object):
     def toHumidity_2_0(buf, start, StartOnHiNibble):
         """read 2 nibbles, presentation with 0 decimal"""
         if USBHardware.isErr2(buf, start+0, StartOnHiNibble) :
-            result = CWeatherTraits.HumidityNP()
+            result = SensorLimits.humidity_NP
         elif USBHardware.isOFL2(buf, start+0, StartOnHiNibble) :
-            result = CWeatherTraits.HumidityOFL()
+            result = SensorLimits.humidity_OFL
         else:
             result = USBHardware.toInt_2(buf, start, StartOnHiNibble)
         return result
@@ -2022,9 +1884,9 @@ class USBHardware(object):
     def toTemperature_3_1(buf, start, StartOnHiNibble):
         """read 3 nibbles, presentation with 1 decimal; units of degree C"""
         if USBHardware.isErr3(buf, start+0, StartOnHiNibble) :
-            result = CWeatherTraits.TemperatureNP()
+            result = SensorLimits.temperature_NP
         elif USBHardware.isOFL3(buf, start+0, StartOnHiNibble) :
-            result = CWeatherTraits.TemperatureOFL()
+            result = SensorLimits.temperature_OFL
         else:
             if StartOnHiNibble:
                 rawtemp   =  (buf[0][start+0] >>  4)*  10 \
@@ -2034,290 +1896,83 @@ class USBHardware(object):
                 rawtemp   =  (buf[0][start+0] & 0xF)*  10 \
                     +  (buf[0][start+1] >>  4)*  1   \
                     +  (buf[0][start+1] & 0xF)*  0.1 
-            result = rawtemp - CWeatherTraits.TemperatureOffset()
+            result = rawtemp - SensorLimits.temperature_offset
         return result
 
-class CCurrentWeatherData(object):
+
+class CurrentData(object):
+    BUFMAP = {'0':  ( 26, 28, 29, 18, 22, 15, 16, 17,  7, 11),
+              '1':  ( 50, 52, 53, 42, 46, 39, 40, 41, 31, 35),
+              '2':  ( 74, 76, 77, 66, 70, 63, 64, 65, 55, 59),
+              '3':  ( 98,100,101, 90, 94, 87, 88, 89, 79, 83),
+              '4':  (122,124,125,114,118,111,112,113,103,107),
+              '5':  (146,148,149,138,142,135,136,137,127,131),
+              '6':  (170,172,173,162,166,159,160,161,151,155),
+              '7':  (194,196,197,186,190,183,184,185,175,179),
+              '8':  (218,220,221,210,214,207,208,209,199,203)}
 
     def __init__(self):
-        self._timestamp = None
-        self._checksum = None
-        self.SignalQuality = None
-
-        self._TempIn = CWeatherTraits.TemperatureNP()
-        self._TempInMinMax = CMinMaxMeasurement()
-        self._HumidityIn = CWeatherTraits.HumidityNP()
-        self._HumidityInMinMax = CMinMaxMeasurement()
-        self._Temp1 = CWeatherTraits.TemperatureNP()
-        self._Temp1MinMax = CMinMaxMeasurement()
-        self._Humidity1 = CWeatherTraits.HumidityNP()
-        self._Humidity1MinMax = CMinMaxMeasurement()
-        self._Temp2 = CWeatherTraits.TemperatureNP()
-        self._Temp2MinMax = CMinMaxMeasurement()
-        self._Humidity2 = CWeatherTraits.HumidityNP()
-        self._Humidity2MinMax = CMinMaxMeasurement()
-        self._Temp3 = CWeatherTraits.TemperatureNP()
-        self._Temp3MinMax = CMinMaxMeasurement()
-        self._Humidity3 = CWeatherTraits.HumidityNP()
-        self._Humidity3MinMax = CMinMaxMeasurement()
-        self._Temp4 = CWeatherTraits.TemperatureNP()
-        self._Temp4MinMax = CMinMaxMeasurement()
-        self._Humidity4 = CWeatherTraits.HumidityNP()
-        self._Humidity4MinMax = CMinMaxMeasurement()
-        self._Temp5 = CWeatherTraits.TemperatureNP()
-        self._Temp5MinMax = CMinMaxMeasurement()
-        self._Humidity5 = CWeatherTraits.HumidityNP()
-        self._Humidity5MinMax = CMinMaxMeasurement()
-        self._Temp6 = CWeatherTraits.TemperatureNP()
-        self._Temp6MinMax = CMinMaxMeasurement()
-        self._Humidity6 = CWeatherTraits.HumidityNP()
-        self._Humidity6MinMax = CMinMaxMeasurement()
-        self._Temp7 = CWeatherTraits.TemperatureNP()
-        self._Temp7MinMax = CMinMaxMeasurement()
-        self._Humidity7 = CWeatherTraits.HumidityNP()
-        self._Humidity7MinMax = CMinMaxMeasurement()
-        self._Temp8 = CWeatherTraits.TemperatureNP()
-        self._Temp8MinMax = CMinMaxMeasurement()
-        self._Humidity8 = CWeatherTraits.HumidityNP()
-        self._Humidity8MinMax = CMinMaxMeasurement()
-
-    @staticmethod
-    def calcChecksum(buf):
-        return calc_checksum(buf, 6)
-
-    def checksum(self):
-        return self._checksum
+        self.values = {}
+        self.values['timestamp'] = None
+        self.values['checksum'] = None
+        self.values['SignalQuality'] = None
+        for i in range(0, 9):
+            self.values['Temp%d' % i] = SensorLimits.temperature_NP
+            self.values['Temp%dMax' % i] = SensorLimits.temperature_NP
+            self.values['Temp%dMaxTS'] = None
+            self.values['Temp%dMin' % i] = SensorLimits.temperature_NP
+            self.values['Temp%dMinTS'] = None
+            self.values['Humidity%d' % i] = SensorLimits.humidity_NP
+            self.values['Humidity%dMax' % i] = SensorLimits.humidity_NP
+            self.values['Humidity%dMaxTS'] = None
+            self.values['Humidity%dMin' % i] = SensorLimits.humidity_NP
+            self.values['Humidity%dMinTS'] = None
 
     def read(self, buf):
-        self._timestamp = int(time.time() + 0.5)
+        values = {}
+        values['timestamp'] = int(time.time() + 0.5)
+        values['checksum'] = calc_checksum(buf, 6)
+
         if DEBUG_WEATHER_DATA > 0:
-            logdbg('Read weather data; ts=%s' % self._timestamp)
-        self._checksum = CCurrentWeatherData.calcChecksum(buf)
+            logdbg('CurrentData.read; ts=%s chksum=%s' %
+                   (values['timestamp'], values['checksum']))
 
-        nbuf = [0]
-        nbuf[0] = buf[0]
-        self._StartBytes = nbuf[0][6]*0xF + nbuf[0][7] # FIXME: what is this?
+        values['SignalQuality'] = (buf[0][4] & 0x7F) ###lh = USBHardware.toInt_2(buf, 4, 1)
 
-        self.SignalQuality = (nbuf[0][4] & 0x7F) ###lh = USBHardware.toInt_2(nbuf, 4, 1)
-
-        self._TempInMinMax._Max._Value = USBHardware.toTemperature_3_1(nbuf, 26, 0)
-        self._TempInMinMax._Min._Value = USBHardware.toTemperature_3_1(nbuf, 28, 1)
-        self._TempIn = USBHardware.toTemperature_3_1(nbuf, 29, 0)
-        self._TempInMinMax._Min._IsError = (self._TempInMinMax._Min._Value == CWeatherTraits.TemperatureNP())
-        self._TempInMinMax._Min._IsOverflow = (self._TempInMinMax._Min._Value == CWeatherTraits.TemperatureOFL())
-        self._TempInMinMax._Max._IsError = (self._TempInMinMax._Max._Value == CWeatherTraits.TemperatureNP())
-        self._TempInMinMax._Max._IsOverflow = (self._TempInMinMax._Max._Value == CWeatherTraits.TemperatureOFL())
-        self._TempInMinMax._Max._Time = None if self._TempInMinMax._Max._IsError or self._TempInMinMax._Max._IsOverflow else USBHardware.toDateTime8(nbuf, 18, 0, 'TempInMax')
-        self._TempInMinMax._Min._Time = None if self._TempInMinMax._Min._IsError or self._TempInMinMax._Min._IsOverflow else USBHardware.toDateTime8(nbuf, 22, 0, 'TempInMin')
-
-        self._HumidityInMinMax._Max._Value = USBHardware.toHumidity_2_0(nbuf, 15, 1)
-        self._HumidityInMinMax._Min._Value = USBHardware.toHumidity_2_0(nbuf, 16, 1)
-        self._HumidityIn = USBHardware.toHumidity_2_0(nbuf, 17, 1)
-        self._HumidityInMinMax._Min._IsError = (self._HumidityInMinMax._Min._Value == CWeatherTraits.HumidityNP())
-        self._HumidityInMinMax._Min._IsOverflow = (self._HumidityInMinMax._Min._Value == CWeatherTraits.HumidityOFL())
-        self._HumidityInMinMax._Max._IsError = (self._HumidityInMinMax._Max._Value == CWeatherTraits.HumidityNP())
-        self._HumidityInMinMax._Max._IsOverflow = (self._HumidityInMinMax._Max._Value == CWeatherTraits.HumidityOFL())
-        self._HumidityInMinMax._Max._Time = None if self._HumidityInMinMax._Max._IsError or self._HumidityInMinMax._Max._IsOverflow else USBHardware.toDateTime8(nbuf, 7, 1, 'HumidityInMax')
-        self._HumidityInMinMax._Min._Time = None if self._HumidityInMinMax._Min._IsError or self._HumidityInMinMax._Min._IsOverflow else USBHardware.toDateTime8(nbuf, 11, 1, 'HumidityInMin')
-
-        self._Temp1MinMax._Max._Value = USBHardware.toTemperature_3_1(nbuf, 50, 0)
-        self._Temp1MinMax._Min._Value = USBHardware.toTemperature_3_1(nbuf, 52, 1)
-        self._Temp1 = USBHardware.toTemperature_3_1(nbuf, 53, 0)
-        self._Temp1MinMax._Min._IsError = (self._Temp1MinMax._Min._Value == CWeatherTraits.TemperatureNP())
-        self._Temp1MinMax._Min._IsOverflow = (self._Temp1MinMax._Min._Value == CWeatherTraits.TemperatureOFL())
-        self._Temp1MinMax._Max._IsError = (self._Temp1MinMax._Max._Value == CWeatherTraits.TemperatureNP())
-        self._Temp1MinMax._Max._IsOverflow = (self._Temp1MinMax._Max._Value == CWeatherTraits.TemperatureOFL())
-        self._Temp1MinMax._Max._Time = None if self._Temp1MinMax._Max._IsError or self._Temp1MinMax._Max._IsOverflow else USBHardware.toDateTime8(nbuf, 42, 0, 'Temp1Max')
-        self._Temp1MinMax._Min._Time = None if self._Temp1MinMax._Min._IsError or self._Temp1MinMax._Min._IsOverflow else USBHardware.toDateTime8(nbuf, 46, 0, 'Temp1Min')
-
-        self._Humidity1MinMax._Max._Value = USBHardware.toHumidity_2_0(nbuf, 39, 1)
-        self._Humidity1MinMax._Min._Value = USBHardware.toHumidity_2_0(nbuf, 40, 1)
-        self._Humidity1 = USBHardware.toHumidity_2_0(nbuf, 41, 1)
-        self._Humidity1MinMax._Min._IsError = (self._Humidity1MinMax._Min._Value == CWeatherTraits.HumidityNP())
-        self._Humidity1MinMax._Min._IsOverflow = (self._Humidity1MinMax._Min._Value == CWeatherTraits.HumidityOFL())
-        self._Humidity1MinMax._Max._IsError = (self._Humidity1MinMax._Max._Value == CWeatherTraits.HumidityNP())
-        self._Humidity1MinMax._Max._IsOverflow = (self._Humidity1MinMax._Max._Value == CWeatherTraits.HumidityOFL())
-        self._Humidity1MinMax._Max._Time = None if self._Humidity1MinMax._Max._IsError or self._Humidity1MinMax._Max._IsOverflow else USBHardware.toDateTime8(nbuf, 31, 1, 'Humidity1Max')
-        self._Humidity1MinMax._Min._Time = None if self._Humidity1MinMax._Min._IsError or self._Humidity1MinMax._Min._IsOverflow else USBHardware.toDateTime8(nbuf, 35, 1, 'Humidity1Min')
-
-        self._Temp2MinMax._Max._Value = USBHardware.toTemperature_3_1(nbuf, 74, 0)
-        self._Temp2MinMax._Min._Value = USBHardware.toTemperature_3_1(nbuf, 76, 1)
-        self._Temp2 = USBHardware.toTemperature_3_1(nbuf, 77, 0)
-        self._Temp2MinMax._Min._IsError = (self._Temp2MinMax._Min._Value == CWeatherTraits.TemperatureNP())
-        self._Temp2MinMax._Min._IsOverflow = (self._Temp2MinMax._Min._Value == CWeatherTraits.TemperatureOFL())
-        self._Temp2MinMax._Max._IsError = (self._Temp2MinMax._Max._Value == CWeatherTraits.TemperatureNP())
-        self._Temp2MinMax._Max._IsOverflow = (self._Temp2MinMax._Max._Value == CWeatherTraits.TemperatureOFL())
-        self._Temp2MinMax._Max._Time = None if self._Temp2MinMax._Max._IsError or self._Temp2MinMax._Max._IsOverflow else USBHardware.toDateTime8(nbuf, 66, 0, 'Temp2Max')
-        self._Temp2MinMax._Min._Time = None if self._Temp2MinMax._Min._IsError or self._Temp2MinMax._Min._IsOverflow else USBHardware.toDateTime8(nbuf, 70, 0, 'Temp2Min')
-
-        self._Humidity2MinMax._Max._Value = USBHardware.toHumidity_2_0(nbuf, 63, 1)
-        self._Humidity2MinMax._Min._Value = USBHardware.toHumidity_2_0(nbuf, 64, 1)
-        self._Humidity2 = USBHardware.toHumidity_2_0(nbuf, 65, 1)
-        self._Humidity2MinMax._Min._IsError = (self._Humidity2MinMax._Min._Value == CWeatherTraits.HumidityNP())
-        self._Humidity2MinMax._Min._IsOverflow = (self._Humidity2MinMax._Min._Value == CWeatherTraits.HumidityOFL())
-        self._Humidity2MinMax._Max._IsError = (self._Humidity2MinMax._Max._Value == CWeatherTraits.HumidityNP())
-        self._Humidity2MinMax._Max._IsOverflow = (self._Humidity2MinMax._Max._Value == CWeatherTraits.HumidityOFL())
-        self._Humidity2MinMax._Max._Time = None if self._Humidity2MinMax._Max._IsError or self._Humidity2MinMax._Max._IsOverflow else USBHardware.toDateTime8(nbuf, 55, 1, 'Humidity2Max')
-        self._Humidity2MinMax._Min._Time = None if self._Humidity2MinMax._Min._IsError or self._Humidity2MinMax._Min._IsOverflow else USBHardware.toDateTime8(nbuf, 59, 1, 'Humidity2Min')
-
-        self._Temp3MinMax._Max._Value = USBHardware.toTemperature_3_1(nbuf, 98, 0)
-        self._Temp3MinMax._Min._Value = USBHardware.toTemperature_3_1(nbuf, 100, 1)
-        self._Temp3 = USBHardware.toTemperature_3_1(nbuf, 101, 0)
-        self._Temp3MinMax._Min._IsError = (self._Temp3MinMax._Min._Value == CWeatherTraits.TemperatureNP())
-        self._Temp3MinMax._Min._IsOverflow = (self._Temp3MinMax._Min._Value == CWeatherTraits.TemperatureOFL())
-        self._Temp3MinMax._Max._IsError = (self._Temp3MinMax._Max._Value == CWeatherTraits.TemperatureNP())
-        self._Temp3MinMax._Max._IsOverflow = (self._Temp3MinMax._Max._Value == CWeatherTraits.TemperatureOFL())
-        self._Temp3MinMax._Max._Time = None if self._Temp3MinMax._Max._IsError or self._Temp3MinMax._Max._IsOverflow else USBHardware.toDateTime8(nbuf, 90, 0, 'Temp3Max')
-        self._Temp3MinMax._Min._Time = None if self._Temp3MinMax._Min._IsError or self._Temp3MinMax._Min._IsOverflow else USBHardware.toDateTime8(nbuf, 94, 0, 'Temp3Min')
-
-        self._Humidity3MinMax._Max._Value = USBHardware.toHumidity_2_0(nbuf, 87, 1)
-        self._Humidity3MinMax._Min._Value = USBHardware.toHumidity_2_0(nbuf, 88, 1)
-        self._Humidity3 = USBHardware.toHumidity_2_0(nbuf, 89, 1)
-        self._Humidity3MinMax._Min._IsError = (self._Humidity3MinMax._Min._Value == CWeatherTraits.HumidityNP())
-        self._Humidity3MinMax._Min._IsOverflow = (self._Humidity3MinMax._Min._Value == CWeatherTraits.HumidityOFL())
-        self._Humidity3MinMax._Max._IsError = (self._Humidity3MinMax._Max._Value == CWeatherTraits.HumidityNP())
-        self._Humidity3MinMax._Max._IsOverflow = (self._Humidity3MinMax._Max._Value == CWeatherTraits.HumidityOFL())
-        self._Humidity3MinMax._Max._Time = None if self._Humidity3MinMax._Max._IsError or self._Humidity3MinMax._Max._IsOverflow else USBHardware.toDateTime8(nbuf, 79, 1, 'Humidity3Max')
-        self._Humidity3MinMax._Min._Time = None if self._Humidity3MinMax._Min._IsError or self._Humidity3MinMax._Min._IsOverflow else USBHardware.toDateTime8(nbuf, 83, 1, 'Humidity3Min')
-
-        self._Temp4MinMax._Max._Value = USBHardware.toTemperature_3_1(nbuf, 122, 0)
-        self._Temp4MinMax._Min._Value = USBHardware.toTemperature_3_1(nbuf, 124, 1)
-        self._Temp4 = USBHardware.toTemperature_3_1(nbuf, 125, 0)
-        self._Temp4MinMax._Min._IsError = (self._Temp4MinMax._Min._Value == CWeatherTraits.TemperatureNP())
-        self._Temp4MinMax._Min._IsOverflow = (self._Temp4MinMax._Min._Value == CWeatherTraits.TemperatureOFL())
-        self._Temp4MinMax._Max._IsError = (self._Temp4MinMax._Max._Value == CWeatherTraits.TemperatureNP())
-        self._Temp4MinMax._Max._IsOverflow = (self._Temp4MinMax._Max._Value == CWeatherTraits.TemperatureOFL())
-        self._Temp4MinMax._Max._Time = None if self._Temp4MinMax._Max._IsError or self._Temp4MinMax._Max._IsOverflow else USBHardware.toDateTime8(nbuf, 114, 0, 'Temp4Max')
-        self._Temp4MinMax._Min._Time = None if self._Temp4MinMax._Min._IsError or self._Temp4MinMax._Min._IsOverflow else USBHardware.toDateTime8(nbuf, 118, 0, 'Temp4Min')
-
-        self._Humidity4MinMax._Max._Value = USBHardware.toHumidity_2_0(nbuf, 111, 1)
-        self._Humidity4MinMax._Min._Value = USBHardware.toHumidity_2_0(nbuf, 112, 1)
-        self._Humidity4 = USBHardware.toHumidity_2_0(nbuf, 113, 1)
-        self._Humidity4MinMax._Min._IsError = (self._Humidity4MinMax._Min._Value == CWeatherTraits.HumidityNP())
-        self._Humidity4MinMax._Min._IsOverflow = (self._Humidity4MinMax._Min._Value == CWeatherTraits.HumidityOFL())
-        self._Humidity4MinMax._Max._IsError = (self._Humidity4MinMax._Max._Value == CWeatherTraits.HumidityNP())
-        self._Humidity4MinMax._Max._IsOverflow = (self._Humidity4MinMax._Max._Value == CWeatherTraits.HumidityOFL())
-        self._Humidity4MinMax._Max._Time = None if self._Humidity4MinMax._Max._IsError or self._Humidity4MinMax._Max._IsOverflow else USBHardware.toDateTime8(nbuf, 103, 1, 'Humidity4Max')
-        self._Humidity4MinMax._Min._Time = None if self._Humidity4MinMax._Min._IsError or self._Humidity4MinMax._Min._IsOverflow else USBHardware.toDateTime8(nbuf, 107, 1, 'Humidity4Min')
-
-        self._Temp5MinMax._Max._Value = USBHardware.toTemperature_3_1(nbuf, 146, 0)
-        self._Temp5MinMax._Min._Value = USBHardware.toTemperature_3_1(nbuf, 148, 1)
-        self._Temp5 = USBHardware.toTemperature_3_1(nbuf, 149, 0)
-        self._Temp5MinMax._Min._IsError = (self._Temp5MinMax._Min._Value == CWeatherTraits.TemperatureNP())
-        self._Temp5MinMax._Min._IsOverflow = (self._Temp5MinMax._Min._Value == CWeatherTraits.TemperatureOFL())
-        self._Temp5MinMax._Max._IsError = (self._Temp5MinMax._Max._Value == CWeatherTraits.TemperatureNP())
-        self._Temp5MinMax._Max._IsOverflow = (self._Temp5MinMax._Max._Value == CWeatherTraits.TemperatureOFL())
-        self._Temp5MinMax._Max._Time = None if self._Temp5MinMax._Max._IsError or self._Temp5MinMax._Max._IsOverflow else USBHardware.toDateTime8(nbuf, 138, 0, 'Temp5Max')
-        self._Temp5MinMax._Min._Time = None if self._Temp5MinMax._Min._IsError or self._Temp5MinMax._Min._IsOverflow else USBHardware.toDateTime8(nbuf, 142, 0, 'Temp5Min')
-
-        self._Humidity5MinMax._Max._Value = USBHardware.toHumidity_2_0(nbuf, 135, 1)
-        self._Humidity5MinMax._Min._Value = USBHardware.toHumidity_2_0(nbuf, 136, 1)
-        self._Humidity5 = USBHardware.toHumidity_2_0(nbuf, 137, 1)
-        self._Humidity5MinMax._Min._IsError = (self._Humidity5MinMax._Min._Value == CWeatherTraits.HumidityNP())
-        self._Humidity5MinMax._Min._IsOverflow = (self._Humidity5MinMax._Min._Value == CWeatherTraits.HumidityOFL())
-        self._Humidity5MinMax._Max._IsError = (self._Humidity5MinMax._Max._Value == CWeatherTraits.HumidityNP())
-        self._Humidity5MinMax._Max._IsOverflow = (self._Humidity5MinMax._Max._Value == CWeatherTraits.HumidityOFL())
-        self._Humidity5MinMax._Max._Time = None if self._Humidity5MinMax._Max._IsError or self._Humidity5MinMax._Max._IsOverflow else USBHardware.toDateTime8(nbuf, 127, 1, 'Humidity5Max')
-        self._Humidity5MinMax._Min._Time = None if self._Humidity5MinMax._Min._IsError or self._Humidity5MinMax._Min._IsOverflow else USBHardware.toDateTime8(nbuf, 131, 1, 'Humidity5Min')
-
-        self._Temp6MinMax._Max._Value = USBHardware.toTemperature_3_1(nbuf, 170, 0)
-        self._Temp6MinMax._Min._Value = USBHardware.toTemperature_3_1(nbuf, 172, 1)
-        self._Temp6 = USBHardware.toTemperature_3_1(nbuf, 173, 0)
-        self._Temp6MinMax._Min._IsError = (self._Temp6MinMax._Min._Value == CWeatherTraits.TemperatureNP())
-        self._Temp6MinMax._Min._IsOverflow = (self._Temp6MinMax._Min._Value == CWeatherTraits.TemperatureOFL())
-        self._Temp6MinMax._Max._IsError = (self._Temp6MinMax._Max._Value == CWeatherTraits.TemperatureNP())
-        self._Temp6MinMax._Max._IsOverflow = (self._Temp6MinMax._Max._Value == CWeatherTraits.TemperatureOFL())
-        self._Temp6MinMax._Max._Time = None if self._Temp6MinMax._Max._IsError or self._Temp6MinMax._Max._IsOverflow else USBHardware.toDateTime8(nbuf, 162, 0, 'Temp6Max')
-        self._Temp6MinMax._Min._Time = None if self._Temp6MinMax._Min._IsError or self._Temp6MinMax._Min._IsOverflow else USBHardware.toDateTime8(nbuf, 166, 0, 'Temp6Min')
-
-        self._Humidity6MinMax._Max._Value = USBHardware.toHumidity_2_0(nbuf, 159, 1)
-        self._Humidity6MinMax._Min._Value = USBHardware.toHumidity_2_0(nbuf, 160, 1)
-        self._Humidity6 = USBHardware.toHumidity_2_0(nbuf, 161, 1)
-        self._Humidity6MinMax._Min._IsError = (self._Humidity6MinMax._Min._Value == CWeatherTraits.HumidityNP())
-        self._Humidity6MinMax._Min._IsOverflow = (self._Humidity6MinMax._Min._Value == CWeatherTraits.HumidityOFL())
-        self._Humidity6MinMax._Max._IsError = (self._Humidity6MinMax._Max._Value == CWeatherTraits.HumidityNP())
-        self._Humidity6MinMax._Max._IsOverflow = (self._Humidity6MinMax._Max._Value == CWeatherTraits.HumidityOFL())
-        self._Humidity6MinMax._Max._Time = None if self._Humidity6MinMax._Max._IsError or self._Humidity6MinMax._Max._IsOverflow else USBHardware.toDateTime8(nbuf, 151, 1, 'Humidity6Max')
-        self._Humidity6MinMax._Min._Time = None if self._Humidity6MinMax._Min._IsError or self._Humidity6MinMax._Min._IsOverflow else USBHardware.toDateTime8(nbuf, 155, 1, 'Humidity6Min')
-
-        self._Temp7MinMax._Max._Value = USBHardware.toTemperature_3_1(nbuf, 194, 0)
-        self._Temp7MinMax._Min._Value = USBHardware.toTemperature_3_1(nbuf, 196, 1)
-        self._Temp7 = USBHardware.toTemperature_3_1(nbuf, 197, 0)
-        self._Temp7MinMax._Min._IsError = (self._Temp7MinMax._Min._Value == CWeatherTraits.TemperatureNP())
-        self._Temp7MinMax._Min._IsOverflow = (self._Temp7MinMax._Min._Value == CWeatherTraits.TemperatureOFL())
-        self._Temp7MinMax._Max._IsError = (self._Temp7MinMax._Max._Value == CWeatherTraits.TemperatureNP())
-        self._Temp7MinMax._Max._IsOverflow = (self._Temp7MinMax._Max._Value == CWeatherTraits.TemperatureOFL())
-        self._Temp7MinMax._Max._Time = None if self._Temp7MinMax._Max._IsError or self._Temp7MinMax._Max._IsOverflow else USBHardware.toDateTime8(nbuf, 186, 0, 'Temp7Max')
-        self._Temp7MinMax._Min._Time = None if self._Temp7MinMax._Min._IsError or self._Temp7MinMax._Min._IsOverflow else USBHardware.toDateTime8(nbuf, 190, 0, 'Temp7Min')
-
-        self._Humidity7MinMax._Max._Value = USBHardware.toHumidity_2_0(nbuf, 183, 1)
-        self._Humidity7MinMax._Min._Value = USBHardware.toHumidity_2_0(nbuf, 184, 1)
-        self._Humidity7 = USBHardware.toHumidity_2_0(nbuf, 185, 1)
-        self._Humidity7MinMax._Min._IsError = (self._Humidity7MinMax._Min._Value == CWeatherTraits.HumidityNP())
-        self._Humidity7MinMax._Min._IsOverflow = (self._Humidity7MinMax._Min._Value == CWeatherTraits.HumidityOFL())
-        self._Humidity7MinMax._Max._IsError = (self._Humidity7MinMax._Max._Value == CWeatherTraits.HumidityNP())
-        self._Humidity7MinMax._Max._IsOverflow = (self._Humidity7MinMax._Max._Value == CWeatherTraits.HumidityOFL())
-        self._Humidity7MinMax._Max._Time = None if self._Humidity7MinMax._Max._IsError or self._Humidity7MinMax._Max._IsOverflow else USBHardware.toDateTime8(nbuf, 175, 1, 'Humidity7Max')
-        self._Humidity7MinMax._Min._Time = None if self._Humidity7MinMax._Min._IsError or self._Humidity7MinMax._Min._IsOverflow else USBHardware.toDateTime8(nbuf, 179, 1, 'Humidity7Min')
-
-        self._Temp8MinMax._Max._Value = USBHardware.toTemperature_3_1(nbuf, 218, 0)
-        self._Temp8MinMax._Min._Value = USBHardware.toTemperature_3_1(nbuf, 220, 1)
-        self._Temp8 = USBHardware.toTemperature_3_1(nbuf, 221, 0)
-        self._Temp8MinMax._Min._IsError = (self._Temp8MinMax._Min._Value == CWeatherTraits.TemperatureNP())
-        self._Temp8MinMax._Min._IsOverflow = (self._Temp8MinMax._Min._Value == CWeatherTraits.TemperatureOFL())
-        self._Temp8MinMax._Max._IsError = (self._Temp8MinMax._Max._Value == CWeatherTraits.TemperatureNP())
-        self._Temp8MinMax._Max._IsOverflow = (self._Temp8MinMax._Max._Value == CWeatherTraits.TemperatureOFL())
-        self._Temp8MinMax._Max._Time = None if self._Temp8MinMax._Max._IsError or self._Temp8MinMax._Max._IsOverflow else USBHardware.toDateTime8(nbuf, 210, 0, 'Temp8Max')
-        self._Temp8MinMax._Min._Time = None if self._Temp8MinMax._Min._IsError or self._Temp8MinMax._Min._IsOverflow else USBHardware.toDateTime8(nbuf, 214, 0, 'Temp8Min')
-
-        self._Humidity8MinMax._Max._Value = USBHardware.toHumidity_2_0(nbuf, 207, 1)
-        self._Humidity8MinMax._Min._Value = USBHardware.toHumidity_2_0(nbuf, 208, 1)
-        self._Humidity8 = USBHardware.toHumidity_2_0(nbuf, 209, 1)
-        self._Humidity8MinMax._Min._IsError = (self._Humidity8MinMax._Min._Value == CWeatherTraits.HumidityNP())
-        self._Humidity8MinMax._Min._IsOverflow = (self._Humidity8MinMax._Min._Value == CWeatherTraits.HumidityOFL())
-        self._Humidity8MinMax._Max._IsError = (self._Humidity8MinMax._Max._Value == CWeatherTraits.HumidityNP())
-        self._Humidity8MinMax._Max._IsOverflow = (self._Humidity8MinMax._Max._Value == CWeatherTraits.HumidityOFL())
-        self._Humidity8MinMax._Max._Time = None if self._Humidity8MinMax._Max._IsError or self._Humidity8MinMax._Max._IsOverflow else USBHardware.toDateTime8(nbuf, 199, 1, 'Humidity8Max')
-        self._Humidity8MinMax._Min._Time = None if self._Humidity8MinMax._Min._IsError or self._Humidity8MinMax._Min._IsOverflow else USBHardware.toDateTime8(nbuf, 203, 1, 'Humidity8Min')
+        for x in self.BUFMAP:
+            lbl = 'Temp%s' % x
+            values[lbl + 'Max'] = USBHardware.toTemperature_3_1(buf, self.BUFMAP[x][0], 0)
+            values[lbl + 'Min'] = USBHardware.toTemperature_3_1(buf, self.BUFMAP[x][1], 1)
+            values[lbl] = USBHardware.toTemperature_3_1(buf, self.BUFMAP[x][2], 0)
+            values[lbl + 'MaxTS'] = None if values[lbl + 'Max'] == SensorLimits.temperature_NP or values[lbl + 'Max'] == SensorLimits.temperature_OFL else USBHardware.toDateTime8(buf, self.BUFMAP[x][3], 0, lbl + 'Max')
+            values[lbl + 'MinTS'] = None if values[lbl + 'Min'] == SensorLimits.temperature_NP or values[lbl + 'Min'] == SensorLimits.temperature_OFL else USBHardware.toDateTime8(buf, self.BUFMAP[x][4], 0, lbl + 'Min')
+            lbl = 'Humidity%s' % x
+            values[lbl + 'Max'] = USBHardware.toHumidity_2_0(buf, self.BUFMAP[x][5], 1)
+            values[lbl + 'Min'] = USBHardware.toHumidity_2_0(buf, self.BUFMAP[x][6], 1)
+            values[lbl] = USBHardware.toHumidity_2_0(buf, self.BUFMAP[x][7], 1)
+            values[lbl + 'MaxTS'] = None if values[lbl + 'Max'] == SensorLimits.humidity_NP or values[lbl + 'Max'] == SensorLimits.humidity_OFL else USBHardware.toDateTime8(buf, self.BUFMAP[x][8], 1, lbl + 'Max')
+            values[lbl + 'MinTS'] = None if values[lbl + 'Min'] == SensorLimits.humidity_NP or values[lbl + 'Min'] == SensorLimits.humidity_OFL else USBHardware.toDateTime8(buf, self.BUFMAP[x][9], 1, lbl + 'Min')
+        self.values = values
 
     def toLog(self):
-        logdbg("SignalQuality %3.0f " % self.SignalQuality)
-        logdbg("_TempIn=    %6.1f  _Min=%6.1f (%s)  _Max=%6.1f (%s)" % (self._TempIn, self._TempInMinMax._Min._Value, self._TempInMinMax._Min._Time, self._TempInMinMax._Max._Value, self._TempInMinMax._Max._Time))
-        logdbg("_HumidityIn=%6.1f  _Min=%6.1f (%s)  _Max=%6.1f (%s)" % (self._HumidityIn, self._HumidityInMinMax._Min._Value, self._HumidityInMinMax._Min._Time, self._HumidityInMinMax._Max._Value, self._HumidityInMinMax._Max._Time))
-        if get_datum_diff(self._Temp1, CWeatherTraits.TemperatureNP(), CWeatherTraits.TemperatureOFL()) is not None:       
-            logdbg("_Temp1=     %6.1f  _Min=%6.1f (%s)  _Max=%6.1f (%s)" % (self._Temp1, self._Temp1MinMax._Min._Value, self._Temp1MinMax._Min._Time, self._Temp1MinMax._Max._Value, self._Temp1MinMax._Max._Time))
-        if get_datum_diff(self._Humidity1, CWeatherTraits.HumidityNP(), CWeatherTraits.HumidityOFL()) is not None:
-            logdbg("_Humidity1= %6.1f  _Min=%6.1f (%s)  _Max=%6.1f (%s)" % (self._Humidity1, self._Humidity1MinMax._Min._Value, self._Humidity1MinMax._Min._Time, self._Humidity1MinMax._Max._Value, self._Humidity1MinMax._Max._Time))
-        if get_datum_diff(self._Temp2, CWeatherTraits.TemperatureNP(), CWeatherTraits.TemperatureOFL()) is not None:  
-            logdbg("_Temp2=     %6.1f  _Min=%6.1f (%s)  _Max=%6.1f (%s)" % (self._Temp2, self._Temp2MinMax._Min._Value, self._Temp2MinMax._Min._Time, self._Temp2MinMax._Max._Value, self._Temp2MinMax._Max._Time))
-        if get_datum_diff(self._Humidity2, CWeatherTraits.HumidityNP(), CWeatherTraits.HumidityOFL()) is not None:
-            logdbg("_Humidity2= %6.1f  _Min=%6.1f (%s)  _Max=%6.1f (%s)" % (self._Humidity2, self._Humidity2MinMax._Min._Value, self._Humidity2MinMax._Min._Time, self._Humidity2MinMax._Max._Value, self._Humidity2MinMax._Max._Time))
-        if get_datum_diff(self._Temp3, CWeatherTraits.TemperatureNP(), CWeatherTraits.TemperatureOFL()) is not None:  
-            logdbg("_Temp3=     %6.1f  _Min=%6.1f (%s)  _Max=%6.1f (%s)" % (self._Temp3, self._Temp3MinMax._Min._Value, self._Temp3MinMax._Min._Time, self._Temp3MinMax._Max._Value, self._Temp3MinMax._Max._Time))
-        if get_datum_diff(self._Humidity3, CWeatherTraits.HumidityNP(), CWeatherTraits.HumidityOFL()) is not None:
-            logdbg("_Humidity3= %6.1f  _Min=%6.1f (%s)  _Max=%6.1f (%s)" % (self._Humidity3, self._Humidity3MinMax._Min._Value, self._Humidity3MinMax._Min._Time, self._Humidity3MinMax._Max._Value, self._Humidity3MinMax._Max._Time))
-        if get_datum_diff(self._Temp4, CWeatherTraits.TemperatureNP(), CWeatherTraits.TemperatureOFL()) is not None:  
-            logdbg("_Temp4=     %6.1f  _Min=%6.1f (%s)  _Max=%6.1f (%s)" % (self._Temp4, self._Temp4MinMax._Min._Value, self._Temp4MinMax._Min._Time, self._Temp4MinMax._Max._Value, self._Temp4MinMax._Max._Time))
-        if get_datum_diff(self._Humidity4, CWeatherTraits.HumidityNP(), CWeatherTraits.HumidityOFL()) is not None:
-            logdbg("_Humidity4= %6.1f  _Min=%6.1f (%s)  _Max=%6.1f (%s)" % (self._Humidity4, self._Humidity4MinMax._Min._Value, self._Humidity4MinMax._Min._Time, self._Humidity4MinMax._Max._Value, self._Humidity4MinMax._Max._Time))
-        if get_datum_diff(self._Temp5, CWeatherTraits.TemperatureNP(), CWeatherTraits.TemperatureOFL()) is not None:  
-            logdbg("_Temp5=     %6.1f  _Min=%6.1f (%s)  _Max=%6.1f (%s)" % (self._Temp5, self._Temp5MinMax._Min._Value, self._Temp5MinMax._Min._Time, self._Temp5MinMax._Max._Value, self._Temp5MinMax._Max._Time))
-        if get_datum_diff(self._Humidity5, CWeatherTraits.HumidityNP(), CWeatherTraits.HumidityOFL()) is not None:
-            logdbg("_Humidity5= %6.1f  _Min=%6.1f (%s)  _Max=%6.1f (%s)" % (self._Humidity5, self._Humidity5MinMax._Min._Value, self._Humidity5MinMax._Min._Time, self._Humidity5MinMax._Max._Value, self._Humidity5MinMax._Max._Time))
-        if get_datum_diff(self._Temp6, CWeatherTraits.TemperatureNP(), CWeatherTraits.TemperatureOFL()) is not None:   
-            logdbg("_Temp6=     %6.1f  _Min=%6.1f (%s)  _Max=%6.1f (%s)" % (self._Temp6, self._Temp6MinMax._Min._Value, self._Temp6MinMax._Min._Time, self._Temp6MinMax._Max._Value, self._Temp6MinMax._Max._Time))
-        if get_datum_diff(self._Humidity6, CWeatherTraits.HumidityNP(), CWeatherTraits.HumidityOFL()) is not None: 
-            logdbg("_Humidity6= %6.1f  _Min=%6.1f (%s)  _Max=%6.1f (%s)" % (self._Humidity6, self._Humidity6MinMax._Min._Value, self._Humidity6MinMax._Min._Time, self._Humidity6MinMax._Max._Value, self._Humidity6MinMax._Max._Time))
-        if get_datum_diff(self._Temp7, CWeatherTraits.TemperatureNP(), CWeatherTraits.TemperatureOFL()) is not None:   
-            logdbg("_Temp7=     %6.1f  _Min=%6.1f (%s)  _Max=%6.1f (%s)" % (self._Temp7, self._Temp7MinMax._Min._Value, self._Temp7MinMax._Min._Time, self._Temp7MinMax._Max._Value, self._Temp7MinMax._Max._Time))
-        if get_datum_diff(self._Humidity7, CWeatherTraits.HumidityNP(), CWeatherTraits.HumidityOFL()) is not None: 
-            logdbg("_Humidity7= %6.1f  _Min=%6.1f (%s)  _Max=%6.1f (%s)" % (self._Humidity7, self._Humidity7MinMax._Min._Value, self._Humidity7MinMax._Min._Time, self._Humidity7MinMax._Max._Value, self._Humidity7MinMax._Max._Time))
-        if get_datum_diff(self._Temp8, CWeatherTraits.TemperatureNP(), CWeatherTraits.TemperatureOFL()) is not None:  
-            logdbg("_Temp8=     %6.1f  _Min=%6.1f (%s)  _Max=%6.1f (%s)" % (self._Temp8, self._Temp8MinMax._Min._Value, self._Temp8MinMax._Min._Time, self._Temp8MinMax._Max._Value, self._Temp8MinMax._Max._Time))
-        if get_datum_diff(self._Humidity8, CWeatherTraits.HumidityNP(), CWeatherTraits.HumidityOFL()) is not None:
-            logdbg("_Humidity8= %6.1f  _Min=%6.1f (%s)  _Max=%6.1f (%s)" % (self._Humidity8, self._Humidity8MinMax._Min._Value, self._Humidity8MinMax._Min._Time, self._Humidity8MinMax._Max._Value, self._Humidity8MinMax._Max._Time))
+        logdbg("timestamp= %s" % self.values['timestamp'])
+        logdbg("SignalQuality= %3.0f " % self.values['SignalQuality'])
+        for x in range(0, 9):
+            logdbg("Temp%d=     %6.1f  _Min=%6.1f (%s)  _Max=%6.1f (%s)" %
+                   (x, self.values['Temp%s' % x],
+                    self.values['Temp%sMin' % x],
+                    self.values['Temp%sMinTS' % x],
+                    self.values['Temp%sMax' % x],
+                    self.values['Temp%sMaxTS' % x]))
+            logdbg("Humidity%d= %6.1f  _Min=%6.1f (%s)  _Max=%6.1f (%s)" %
+                   (x, self.values['Humidity%s' % x],
+                    self.values['Humidity%sMin' % x],
+                    self.values['Humidity%sMinTS' % x],
+                    self.values['Humidity%sMax' % x],
+                    self.values['Humidity%sMaxTS' % x]))
 
-class CWeatherStationConfig(object):
+
+class StationConfig(object):
     def __init__(self):
         self._InBufCS = 0  # checksum of received config
         self._OutBufCS = 0 # calculated config checksum from outbuf config
@@ -2385,301 +2040,79 @@ class CWeatherStationConfig(object):
 
 
 class CHistoryData(object):
+    BUFMAP = {'1': (176,
+                    (174,173,171,170,168,167,165,164,162),
+                    (161,160,159,158,157,156,155,154,153)),
+              '2': (148,
+                    (146,145,143,142,140,139,137,136,134)
+                    (133,132,131,130,129,128,127,126,125)),
+              '3': (120,
+                    (118,117,115,114,112,111,109,108,106),
+                    (105,104,103,102,101,100, 99, 98, 97)),
+              '4': ( 92,
+                     ( 90, 89, 87, 86, 84, 83, 81, 80, 78),
+                     ( 77, 76, 75, 74, 73, 72, 71, 70, 69)),
+              '5': ( 64,
+                     ( 62, 61, 59, 58, 56, 55, 53, 52, 50),
+                     ( 49, 48, 47, 46, 45, 44, 43, 42, 41)),
+              '6': ( 36,
+                     ( 34, 33, 31, 30, 28, 27, 25, 24, 22),
+                     ( 21, 20, 19, 18, 17, 16, 15, 14, 13))}
 
     def __init__(self):
-        self.Pos1_Time = None
-        self.Pos1_TempIn = CWeatherTraits.TemperatureNP()
-        self.Pos1_HumidityIn = CWeatherTraits.HumidityNP()
-        self.Pos1_Temp1 = CWeatherTraits.TemperatureNP()
-        self.Pos1_Humidity1 = CWeatherTraits.HumidityNP()
-        self.Pos1_Temp2 = CWeatherTraits.TemperatureNP()
-        self.Pos1_Humidity2 = CWeatherTraits.HumidityNP()
-        self.Pos1_Temp3 = CWeatherTraits.TemperatureNP()
-        self.Pos1_Humidity3 = CWeatherTraits.HumidityNP()
-        self.Pos1_Temp4 = CWeatherTraits.TemperatureNP()
-        self.Pos1_Humidity4 = CWeatherTraits.HumidityNP()
-        self.Pos1_Temp5 = CWeatherTraits.TemperatureNP()
-        self.Pos1_Humidity5 = CWeatherTraits.HumidityNP()
-        self.Pos1_Temp6 = CWeatherTraits.TemperatureNP()
-        self.Pos1_Humidity6 = CWeatherTraits.HumidityNP()
-        self.Pos1_Temp7 = CWeatherTraits.TemperatureNP()
-        self.Pos1_Humidity7 = CWeatherTraits.HumidityNP()
-        self.Pos1_Temp8 = CWeatherTraits.TemperatureNP()
-        self.Pos1_Humidity8 = CWeatherTraits.HumidityNP()
-        self.Pos2_Time = None
-        self.Pos2_TempIn = CWeatherTraits.TemperatureNP()
-        self.Pos2_HumidityIn = CWeatherTraits.HumidityNP()
-        self.Pos2_Temp1 = CWeatherTraits.TemperatureNP()
-        self.Pos2_Humidity1 = CWeatherTraits.HumidityNP()
-        self.Pos2_Temp2 = CWeatherTraits.TemperatureNP()
-        self.Pos2_Humidity2 = CWeatherTraits.HumidityNP()
-        self.Pos2_Temp3 = CWeatherTraits.TemperatureNP()
-        self.Pos2_Humidity3 = CWeatherTraits.HumidityNP()
-        self.Pos2_Temp4 = CWeatherTraits.TemperatureNP()
-        self.Pos2_Humidity4 = CWeatherTraits.HumidityNP()
-        self.Pos2_Temp5 = CWeatherTraits.TemperatureNP()
-        self.Pos2_Humidity5 = CWeatherTraits.HumidityNP()
-        self.Pos2_Temp6 = CWeatherTraits.TemperatureNP()
-        self.Pos2_Humidity6 = CWeatherTraits.HumidityNP()
-        self.Pos2_Temp7 = CWeatherTraits.TemperatureNP()
-        self.Pos2_Humidity7 = CWeatherTraits.HumidityNP()
-        self.Pos2_Temp8 = CWeatherTraits.TemperatureNP()
-        self.Pos2_Humidity8 = CWeatherTraits.HumidityNP()
-        self.Pos3_Time = None
-        self.Pos3_TempIn = CWeatherTraits.TemperatureNP()
-        self.Pos3_HumidityIn = CWeatherTraits.HumidityNP()
-        self.Pos3_Temp1 = CWeatherTraits.TemperatureNP()
-        self.Pos3_Humidity1 = CWeatherTraits.HumidityNP()
-        self.Pos3_Temp2 = CWeatherTraits.TemperatureNP()
-        self.Pos3_Humidity2 = CWeatherTraits.HumidityNP()
-        self.Pos3_Temp3 = CWeatherTraits.TemperatureNP()
-        self.Pos3_Humidity3 = CWeatherTraits.HumidityNP()
-        self.Pos3_Temp4 = CWeatherTraits.TemperatureNP()
-        self.Pos3_Humidity4 = CWeatherTraits.HumidityNP()
-        self.Pos3_Temp5 = CWeatherTraits.TemperatureNP()
-        self.Pos3_Humidity5 = CWeatherTraits.HumidityNP()
-        self.Pos3_Temp6 = CWeatherTraits.TemperatureNP()
-        self.Pos3_Humidity6 = CWeatherTraits.HumidityNP()
-        self.Pos3_Temp7 = CWeatherTraits.TemperatureNP()
-        self.Pos3_Humidity7 = CWeatherTraits.HumidityNP()
-        self.Pos3_Temp8 = CWeatherTraits.TemperatureNP()
-        self.Pos3_Humidity8 = CWeatherTraits.HumidityNP()
-        self.Pos4_Time = None
-        self.Pos4_TempIn = CWeatherTraits.TemperatureNP()
-        self.Pos4_HumidityIn = CWeatherTraits.HumidityNP()
-        self.Pos4_Temp1 = CWeatherTraits.TemperatureNP()
-        self.Pos4_Humidity1 = CWeatherTraits.HumidityNP()
-        self.Pos4_Temp2 = CWeatherTraits.TemperatureNP()
-        self.Pos4_Humidity2 = CWeatherTraits.HumidityNP()
-        self.Pos4_Temp3 = CWeatherTraits.TemperatureNP()
-        self.Pos4_Humidity3 = CWeatherTraits.HumidityNP()
-        self.Pos4_Temp4 = CWeatherTraits.TemperatureNP()
-        self.Pos4_Humidity4 = CWeatherTraits.HumidityNP()
-        self.Pos4_Temp5 = CWeatherTraits.TemperatureNP()
-        self.Pos4_Humidity5 = CWeatherTraits.HumidityNP()
-        self.Pos4_Temp6 = CWeatherTraits.TemperatureNP()
-        self.Pos4_Humidity6 = CWeatherTraits.HumidityNP()
-        self.Pos4_Temp7 = CWeatherTraits.TemperatureNP()
-        self.Pos4_Humidity7 = CWeatherTraits.HumidityNP()
-        self.Pos4_Temp8 = CWeatherTraits.TemperatureNP()
-        self.Pos4_Humidity8 = CWeatherTraits.HumidityNP()
-        self.Pos5_Time = None
-        self.Pos5_TempIn = CWeatherTraits.TemperatureNP()
-        self.Pos5_HumidityIn = CWeatherTraits.HumidityNP()
-        self.Pos5_Temp1 = CWeatherTraits.TemperatureNP()
-        self.Pos5_Humidity1 = CWeatherTraits.HumidityNP()
-        self.Pos5_Temp2 = CWeatherTraits.TemperatureNP()
-        self.Pos5_Humidity2 = CWeatherTraits.HumidityNP()
-        self.Pos5_Temp3 = CWeatherTraits.TemperatureNP()
-        self.Pos5_Humidity3 = CWeatherTraits.HumidityNP()
-        self.Pos5_Temp4 = CWeatherTraits.TemperatureNP()
-        self.Pos5_Humidity4 = CWeatherTraits.HumidityNP()
-        self.Pos5_Temp5 = CWeatherTraits.TemperatureNP()
-        self.Pos5_Humidity5 = CWeatherTraits.HumidityNP()
-        self.Pos5_Temp6 = CWeatherTraits.TemperatureNP()
-        self.Pos5_Humidity6 = CWeatherTraits.HumidityNP()
-        self.Pos5_Temp7 = CWeatherTraits.TemperatureNP()
-        self.Pos5_Humidity7 = CWeatherTraits.HumidityNP()
-        self.Pos5_Temp8 = CWeatherTraits.TemperatureNP()
-        self.Pos5_Humidity8 = CWeatherTraits.HumidityNP()
-        self.Pos6_Time = None
-        self.Pos6_TempIn = CWeatherTraits.TemperatureNP()
-        self.Pos6_HumidityIn = CWeatherTraits.HumidityNP()
-        self.Pos6_Temp1 = CWeatherTraits.TemperatureNP()
-        self.Pos6_Humidity1 = CWeatherTraits.HumidityNP()
-        self.Pos6_Temp2 = CWeatherTraits.TemperatureNP()
-        self.Pos6_Humidity2 = CWeatherTraits.HumidityNP()
-        self.Pos6_Temp3 = CWeatherTraits.TemperatureNP()
-        self.Pos6_Humidity3 = CWeatherTraits.HumidityNP()
-        self.Pos6_Temp4 = CWeatherTraits.TemperatureNP()
-        self.Pos6_Humidity4 = CWeatherTraits.HumidityNP()
-        self.Pos6_Temp5 = CWeatherTraits.TemperatureNP()
-        self.Pos6_Humidity5 = CWeatherTraits.HumidityNP()
-        self.Pos6_Temp6 = CWeatherTraits.TemperatureNP()
-        self.Pos6_Humidity6 = CWeatherTraits.HumidityNP()
-        self.Pos6_Temp7 = CWeatherTraits.TemperatureNP()
-        self.Pos6_Humidity7 = CWeatherTraits.HumidityNP()
-        self.Pos6_Temp8 = CWeatherTraits.TemperatureNP()
-        self.Pos6_Humidity8 = CWeatherTraits.HumidityNP()
+        self.values = {}
+        for i in range(1, 7):
+            self.values['Pos%dTS' % i] = None
+            for j in range(0, 9):
+                self.values['Pos%dTemp%d' % (i, j)] = SensorLimits.temperature_NP
+                self.values['Pos%dHumidity%d' % (i, j)] = SensorLimits.humidity_NP
 
     def read(self, buf):
-        nbuf = [0]
-        nbuf[0] = buf[0]
-        self.Pos1_Time       = USBHardware.toDateTime10(nbuf, 176, 1, 'HistoryData1')
-        self.Pos1_TempIn     = USBHardware.toTemperature_3_1(nbuf, 174, 0)
-        self.Pos1_HumidityIn = USBHardware.toHumidity_2_0(nbuf, 161, 1)  
-        self.Pos1_Temp1      = USBHardware.toTemperature_3_1(nbuf, 173, 1)
-        self.Pos1_Humidity1  = USBHardware.toHumidity_2_0(nbuf, 160, 1)
-        self.Pos1_Temp2      = USBHardware.toTemperature_3_1(nbuf, 171, 0)
-        self.Pos1_Humidity2  = USBHardware.toHumidity_2_0(nbuf, 159, 1)
-        self.Pos1_Temp3      = USBHardware.toTemperature_3_1(nbuf, 170, 1)
-        self.Pos1_Humidity3  = USBHardware.toHumidity_2_0(nbuf, 158, 1)
-        self.Pos1_Temp4      = USBHardware.toTemperature_3_1(nbuf, 168, 0)
-        self.Pos1_Humidity4  = USBHardware.toHumidity_2_0(nbuf, 157, 1)
-        self.Pos1_Temp5      = USBHardware.toTemperature_3_1(nbuf, 167, 1)
-        self.Pos1_Humidity5  = USBHardware.toHumidity_2_0(nbuf, 156, 1)
-        self.Pos1_Temp6      = USBHardware.toTemperature_3_1(nbuf, 165, 0)
-        self.Pos1_Humidity6  = USBHardware.toHumidity_2_0(nbuf, 155, 1)
-        self.Pos1_Temp7      = USBHardware.toTemperature_3_1(nbuf, 164, 1)
-        self.Pos1_Humidity7  = USBHardware.toHumidity_2_0(nbuf, 154, 1)
-        self.Pos1_Temp8      = USBHardware.toTemperature_3_1(nbuf, 162, 0)
-        self.Pos1_Humidity8  = USBHardware.toHumidity_2_0(nbuf, 153, 1)
-        self.Pos2_Time       = USBHardware.toDateTime10(nbuf, 148, 1, 'HistoryData2')
-        self.Pos2_TempIn     = USBHardware.toTemperature_3_1(nbuf, 146, 0)
-        self.Pos2_HumidityIn = USBHardware.toHumidity_2_0(nbuf, 133, 1)  
-        self.Pos2_Temp1      = USBHardware.toTemperature_3_1(nbuf, 145, 1)
-        self.Pos2_Humidity1  = USBHardware.toHumidity_2_0(nbuf, 132, 1)
-        self.Pos2_Temp2      = USBHardware.toTemperature_3_1(nbuf, 143, 0)
-        self.Pos2_Humidity2  = USBHardware.toHumidity_2_0(nbuf, 131, 1)
-        self.Pos2_Temp3      = USBHardware.toTemperature_3_1(nbuf, 142, 1)
-        self.Pos2_Humidity3  = USBHardware.toHumidity_2_0(nbuf, 130, 1)
-        self.Pos2_Temp4      = USBHardware.toTemperature_3_1(nbuf, 140, 0)
-        self.Pos2_Humidity4  = USBHardware.toHumidity_2_0(nbuf, 129, 1)
-        self.Pos2_Temp5      = USBHardware.toTemperature_3_1(nbuf, 139, 1)
-        self.Pos2_Humidity5  = USBHardware.toHumidity_2_0(nbuf, 128, 1)
-        self.Pos2_Temp6      = USBHardware.toTemperature_3_1(nbuf, 137, 0)
-        self.Pos2_Humidity6  = USBHardware.toHumidity_2_0(nbuf, 127, 1)
-        self.Pos2_Temp7      = USBHardware.toTemperature_3_1(nbuf, 136, 1)
-        self.Pos2_Humidity7  = USBHardware.toHumidity_2_0(nbuf, 126, 1)
-        self.Pos2_Temp8      = USBHardware.toTemperature_3_1(nbuf, 134, 0)
-        self.Pos2_Humidity8  = USBHardware.toHumidity_2_0(nbuf, 125, 1)
-        self.Pos3_Time       = USBHardware.toDateTime10(nbuf, 120, 1, 'HistoryData3')
-        self.Pos3_TempIn     = USBHardware.toTemperature_3_1(nbuf, 118, 0)
-        self.Pos3_HumidityIn = USBHardware.toHumidity_2_0(nbuf, 105, 1)  
-        self.Pos3_Temp1      = USBHardware.toTemperature_3_1(nbuf, 117, 1)
-        self.Pos3_Humidity1  = USBHardware.toHumidity_2_0(nbuf, 104, 1)
-        self.Pos3_Temp2      = USBHardware.toTemperature_3_1(nbuf, 115, 0)
-        self.Pos3_Humidity2  = USBHardware.toHumidity_2_0(nbuf, 103, 1)
-        self.Pos3_Temp3      = USBHardware.toTemperature_3_1(nbuf, 114, 1)
-        self.Pos3_Humidity3  = USBHardware.toHumidity_2_0(nbuf, 102, 1)
-        self.Pos3_Temp4      = USBHardware.toTemperature_3_1(nbuf, 112, 0)
-        self.Pos3_Humidity4  = USBHardware.toHumidity_2_0(nbuf, 101, 1)
-        self.Pos3_Temp5      = USBHardware.toTemperature_3_1(nbuf, 111, 1)
-        self.Pos3_Humidity5  = USBHardware.toHumidity_2_0(nbuf, 100, 1)
-        self.Pos3_Temp6      = USBHardware.toTemperature_3_1(nbuf, 109, 0)
-        self.Pos3_Humidity6  = USBHardware.toHumidity_2_0(nbuf, 99, 1)
-        self.Pos3_Temp7      = USBHardware.toTemperature_3_1(nbuf, 108, 1)
-        self.Pos3_Humidity7  = USBHardware.toHumidity_2_0(nbuf, 98, 1)
-        self.Pos3_Temp8      = USBHardware.toTemperature_3_1(nbuf, 106, 0)
-        self.Pos3_Humidity8  = USBHardware.toHumidity_2_0(nbuf, 97, 1)
-        self.Pos4_Time       = USBHardware.toDateTime10(nbuf, 92, 1, 'HistoryData4')
-        self.Pos4_TempIn     = USBHardware.toTemperature_3_1(nbuf, 90, 0)
-        self.Pos4_HumidityIn = USBHardware.toHumidity_2_0(nbuf, 77, 1)  
-        self.Pos4_Temp1      = USBHardware.toTemperature_3_1(nbuf, 89, 1)
-        self.Pos4_Humidity1  = USBHardware.toHumidity_2_0(nbuf, 76, 1)
-        self.Pos4_Temp2      = USBHardware.toTemperature_3_1(nbuf, 87, 0)
-        self.Pos4_Humidity2  = USBHardware.toHumidity_2_0(nbuf, 75, 1)
-        self.Pos4_Temp3      = USBHardware.toTemperature_3_1(nbuf, 86, 1)
-        self.Pos4_Humidity3  = USBHardware.toHumidity_2_0(nbuf, 74, 1)
-        self.Pos4_Temp4      = USBHardware.toTemperature_3_1(nbuf, 84, 0)
-        self.Pos4_Humidity4  = USBHardware.toHumidity_2_0(nbuf, 73, 1)
-        self.Pos4_Temp5      = USBHardware.toTemperature_3_1(nbuf, 83, 1)
-        self.Pos4_Humidity5  = USBHardware.toHumidity_2_0(nbuf, 72, 1)
-        self.Pos4_Temp6      = USBHardware.toTemperature_3_1(nbuf, 81, 0)
-        self.Pos4_Humidity6  = USBHardware.toHumidity_2_0(nbuf, 71, 1)
-        self.Pos4_Temp7      = USBHardware.toTemperature_3_1(nbuf, 80, 1)
-        self.Pos4_Humidity7  = USBHardware.toHumidity_2_0(nbuf, 70, 1)
-        self.Pos4_Temp8      = USBHardware.toTemperature_3_1(nbuf, 78, 0)
-        self.Pos4_Humidity8  = USBHardware.toHumidity_2_0(nbuf, 69, 1)
-        self.Pos5_Time       = USBHardware.toDateTime10(nbuf, 64, 1, 'HistoryData5')
-        self.Pos5_TempIn     = USBHardware.toTemperature_3_1(nbuf, 62, 0)
-        self.Pos5_HumidityIn = USBHardware.toHumidity_2_0(nbuf, 49, 1)  
-        self.Pos5_Temp1      = USBHardware.toTemperature_3_1(nbuf, 61, 1)
-        self.Pos5_Humidity1  = USBHardware.toHumidity_2_0(nbuf, 48, 1)
-        self.Pos5_Temp2      = USBHardware.toTemperature_3_1(nbuf, 59, 0)
-        self.Pos5_Humidity2  = USBHardware.toHumidity_2_0(nbuf, 47, 1)
-        self.Pos5_Temp3      = USBHardware.toTemperature_3_1(nbuf, 58, 1)
-        self.Pos5_Humidity3  = USBHardware.toHumidity_2_0(nbuf, 46, 1)
-        self.Pos5_Temp4      = USBHardware.toTemperature_3_1(nbuf, 56, 0)
-        self.Pos5_Humidity4  = USBHardware.toHumidity_2_0(nbuf, 45, 1)
-        self.Pos5_Temp5      = USBHardware.toTemperature_3_1(nbuf, 55, 1)
-        self.Pos5_Humidity5  = USBHardware.toHumidity_2_0(nbuf, 44, 1)
-        self.Pos5_Temp6      = USBHardware.toTemperature_3_1(nbuf, 53, 0)
-        self.Pos5_Humidity6  = USBHardware.toHumidity_2_0(nbuf, 43, 1)
-        self.Pos5_Temp7      = USBHardware.toTemperature_3_1(nbuf, 52, 1)
-        self.Pos5_Humidity7  = USBHardware.toHumidity_2_0(nbuf, 42, 1)
-        self.Pos5_Temp8      = USBHardware.toTemperature_3_1(nbuf, 50, 0)
-        self.Pos5_Humidity8  = USBHardware.toHumidity_2_0(nbuf, 41, 1)
-        self.Pos6_Time       = USBHardware.toDateTime10(nbuf, 36, 1, 'HistoryData6')
-        self.Pos6_TempIn     = USBHardware.toTemperature_3_1(nbuf, 34, 0)
-        self.Pos6_HumidityIn = USBHardware.toHumidity_2_0(nbuf, 21, 1)  
-        self.Pos6_Temp1      = USBHardware.toTemperature_3_1(nbuf, 33, 1)
-        self.Pos6_Humidity1  = USBHardware.toHumidity_2_0(nbuf, 20, 1)
-        self.Pos6_Temp2      = USBHardware.toTemperature_3_1(nbuf, 31, 0)
-        self.Pos6_Humidity2  = USBHardware.toHumidity_2_0(nbuf, 19, 1)
-        self.Pos6_Temp3      = USBHardware.toTemperature_3_1(nbuf, 30, 1)
-        self.Pos6_Humidity3  = USBHardware.toHumidity_2_0(nbuf, 18, 1)
-        self.Pos6_Temp4      = USBHardware.toTemperature_3_1(nbuf, 28, 0)
-        self.Pos6_Humidity4  = USBHardware.toHumidity_2_0(nbuf, 17, 1)
-        self.Pos6_Temp5      = USBHardware.toTemperature_3_1(nbuf, 27, 1)
-        self.Pos6_Humidity5  = USBHardware.toHumidity_2_0(nbuf, 16, 1)
-        self.Pos6_Temp6      = USBHardware.toTemperature_3_1(nbuf, 25, 0)
-        self.Pos6_Humidity6  = USBHardware.toHumidity_2_0(nbuf, 15, 1)
-        self.Pos6_Temp7      = USBHardware.toTemperature_3_1(nbuf, 24, 1)
-        self.Pos6_Humidity7  = USBHardware.toHumidity_2_0(nbuf, 14, 1)
-        self.Pos6_Temp8      = USBHardware.toTemperature_3_1(nbuf, 22, 0)
-        self.Pos6_Humidity8  = USBHardware.toHumidity_2_0(nbuf, 13, 1)
+        
+        values = {}
+        for i in range(1, 7):
+            values['Pos%dTS' % i] = USBHardware.toDateTime10(buf, self.BUFMAP[i][0], 1, 'HistoryData%d' % i)
+            for j in range(0, 9):
+                values['Pos%dTemp%d' % (i, j)] = USBHardware.toTemperature_3_1(buf, self.BUFMAP[i][1][j], j%2)
+                values['Pos%dHumidity%d' % (i, j)] = USBHardware.toHumidity_2_0(buf, self.BUFMAP[i][2][j], 1)
+        self.values = values
 
     def toLog(self):
-        """emit raw historical data"""
-        logdbg("Pos1_Time %s, Pos1_TempIn = %3.1f,Pos1_HumidityIn = %3.1f" % (self.Pos1_Time, self.Pos1_TempIn, self.Pos1_HumidityIn))
-        logdbg("Pos1_Temp 1-8     = %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f" % 
-            (self.Pos1_Temp1, self.Pos1_Temp2, self.Pos1_Temp3, self.Pos1_Temp4, 
-             self.Pos1_Temp5, self.Pos1_Temp6, self.Pos1_Temp7, self.Pos1_Temp8))
-        logdbg("Pos1_Humidity 1-8 = %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f" % 
-            (self.Pos1_Humidity1, self.Pos1_Humidity2, self.Pos1_Humidity3, self.Pos1_Humidity4, 
-             self.Pos1_Humidity5, self.Pos1_Humidity6, self.Pos1_Humidity7, self.Pos1_Humidity8))
-        if self.Pos2_Time != self.Pos1_Time:
-            logdbg("Pos2_Time %s, Pos2_TempIn = %3.1f,Pos2_HumidityIn = %3.1f" % (self.Pos2_Time, self.Pos2_TempIn, self.Pos2_HumidityIn))
-            logdbg("Pos2_Temp 1-8     = %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f" % 
-                (self.Pos2_Temp1, self.Pos2_Temp2, self.Pos2_Temp3, self.Pos2_Temp4, 
-                 self.Pos2_Temp5, self.Pos2_Temp6, self.Pos2_Temp7, self.Pos2_Temp8))
-            logdbg("Pos2_Humidity 1-8 = %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f" % 
-                (self.Pos2_Humidity1, self.Pos2_Humidity2, self.Pos2_Humidity3, self.Pos2_Humidity4, 
-                 self.Pos2_Humidity5, self.Pos2_Humidity6, self.Pos2_Humidity7, self.Pos2_Humidity8))
-        if self.Pos3_Time != self.Pos2_Time:
-            logdbg("Pos3_Time %s, Pos3_TempIn = %3.1f,Pos3_HumidityIn = %3.1f" % (self.Pos3_Time, self.Pos3_TempIn, self.Pos3_HumidityIn))
-            logdbg("Pos3_Temp 1-8     = %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f" % 
-                (self.Pos3_Temp1, self.Pos3_Temp2, self.Pos3_Temp3, self.Pos3_Temp4, 
-                 self.Pos3_Temp5, self.Pos3_Temp6, self.Pos3_Temp7, self.Pos3_Temp8))
-            logdbg("Pos3_Humidity 1-8 = %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f" % 
-                (self.Pos3_Humidity1, self.Pos3_Humidity2, self.Pos3_Humidity3, self.Pos3_Humidity4, 
-                 self.Pos3_Humidity5, self.Pos3_Humidity6, self.Pos3_Humidity7, self.Pos3_Humidity8))
-        if self.Pos4_Time != self.Pos3_Time:
-            logdbg("Pos4_Time %s, Pos4_TempIn = %3.1f,Pos4_HumidityIn = %3.1f" % (self.Pos4_Time, self.Pos4_TempIn, self.Pos4_HumidityIn))
-            logdbg("Pos4_Temp 1-8     = %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f" % 
-                (self.Pos4_Temp1, self.Pos4_Temp2, self.Pos4_Temp3, self.Pos4_Temp4, 
-                 self.Pos4_Temp5, self.Pos4_Temp6, self.Pos4_Temp7, self.Pos4_Temp8))
-            logdbg("Pos4_Humidity 1-8 = %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f" % 
-                (self.Pos4_Humidity1, self.Pos4_Humidity2, self.Pos4_Humidity3, self.Pos4_Humidity4, 
-                 self.Pos4_Humidity5, self.Pos4_Humidity6, self.Pos4_Humidity7, self.Pos4_Humidity8))
-        if self.Pos5_Time != self.Pos4_Time:
-            logdbg("Pos5_Time %s, Pos5_TempIn = %3.1f,Pos5_HumidityIn = %3.1f" % (self.Pos5_Time, self.Pos5_TempIn, self.Pos5_HumidityIn))
-            logdbg("Pos5_Temp 1-8     = %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f" % 
-                (self.Pos5_Temp1, self.Pos5_Temp2, self.Pos5_Temp3, self.Pos5_Temp4, 
-                 self.Pos5_Temp5, self.Pos5_Temp6, self.Pos5_Temp7, self.Pos5_Temp8))
-            logdbg("Pos5_Humidity 1-8 = %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f" % 
-                (self.Pos5_Humidity1, self.Pos5_Humidity2, self.Pos5_Humidity3, self.Pos5_Humidity4, 
-                 self.Pos5_Humidity5, self.Pos5_Humidity6, self.Pos5_Humidity7, self.Pos5_Humidity8))
-        if self.Pos6_Time != self.Pos5_Time:
-            logdbg("Pos6_Time %s, Pos6_TempIn = %3.1f,Pos6_HumidityIn = %3.1f" % (self.Pos6_Time, self.Pos6_TempIn, self.Pos6_HumidityIn))
-            logdbg("Pos6_Temp 1-8     = %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f" % 
-                (self.Pos6_Temp1, self.Pos6_Temp2, self.Pos6_Temp3, self.Pos6_Temp4, 
-                 self.Pos6_Temp5, self.Pos6_Temp6, self.Pos6_Temp7, self.Pos6_Temp8))
-            logdbg("Pos6_Humidity 1-8 = %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f" % 
-                (self.Pos6_Humidity1, self.Pos6_Humidity2, self.Pos6_Humidity3, self.Pos6_Humidity4, 
-                 self.Pos6_Humidity5, self.Pos6_Humidity6, self.Pos6_Humidity7, self.Pos6_Humidity8))
-
+        last_ts = None
+        for i in range(1, 7):
+            if self.values['Pos%sTS' % i] != last_ts:
+                logdbg("Pos%dDateTime %s, Pos%dTemp0 = %3.1f,Pos%sHumidity0 = %3.1f" %
+                       (i, self.values['Pos%dTS' % i],
+                        i, self.values['Pos%dTemp0' % i],
+                        i, self.values['Pos%dHumidity0' % i]))
+                logdbg("Pos%dTemp 1-8     = %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f" % 
+                       (i,
+                        self.values['Pos%dTemp1' % i],
+                        self.values['Pos%dTemp2' % i],
+                        self.values['Pos%dTemp3' % i],
+                        self.values['Pos%dTemp4' % i], 
+                        self.values['Pos%dTemp5' % i],
+                        self.values['Pos%dTemp6' % i],
+                        self.values['Pos%dTemp7' % i],
+                        self.values['Pos%dTemp8' % i]))
+                logdbg("Pos%dHumidity 1-8 = %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f" % 
+                       (i,
+                        self.values['Pos%dHumidity1' % i],
+                        self.values['Pos%dHumidity2' % i],
+                        self.values['Pos%dHumidity3' % i],
+                        self.values['Pos%dHumidity4' % i], 
+                        self.values['Pos%dHumidity5' % i],
+                        self.values['Pos%dHumidity6' % i],
+                        self.values['Pos%dHumidity7' % i],
+                        self.values['Pos%dHumidity8' % i]))
+            last_ts = self.values['Pos%sTS']
 
     def asDict(self):
         """emit historical data as a dict with weewx conventions"""
-        return {
-            'dateTime': tstr_to_ts(str(self.Time)),
-            'inTemp': self.TempIn,
-            'inHumidity': self.HumidityIn,
-            'outTemp': self.TempOutdoor,
-            'outHumidity': self.HumidityOutdoor,
-            }
+        data = {'dateTime': tstr_to_ts(str(self.Time))}
+        data.update(self.values)
+        return data
+
 
 class HistoryCache:
     def __init__(self):
@@ -2702,8 +2135,6 @@ class CDataStore(object):
             self.VendorId       = 0x6666
             self.ProductId      = 0x5555
             self.VersionNo      = 1
-            self.manufacturer   = "LA CROSSE TECHNOLOGY"
-            self.product        = "Weather Direct Light Wireless Device"
             self.FrequencyStandard = EFrequency.fsUS
             self.Frequency      = getFrequency(self.FrequencyStandard)
             self.SerialNumber   = None
@@ -2726,8 +2157,8 @@ class CDataStore(object):
         self.registeredDeviceID = None
         self.LastStat = CDataStore.TLastStat()
         self.TransceiverSettings = CDataStore.TTransceiverSettings()
-        self.StationConfig = CWeatherStationConfig()
-        self.CurrentWeather = CCurrentWeatherData()
+        self.StationConfig = StationConfig()
+        self.CurrentWeather = CurrentData()
 
     def getFrequencyStandard(self):
         return self.TransceiverSettings.FrequencyStandard
@@ -3398,13 +2829,12 @@ class CCommunicationService(object):
 
         now = int(time.time())
 
-        # update the weather data cache if changed or stale
-        chksum = CCurrentWeatherData.calcChecksum(Buffer)
+        # update the weather data cache if stale
         age = now - self.DataStore.LastStat.last_weather_ts
         if age >= self.DataStore.getCommModeInterval():
             if DEBUG_WEATHER_DATA > 2:
                 self.shid.dump('CurWea', Buffer[0], fmt='long')
-            data = CCurrentWeatherData()
+            data = CurrentData()
             data.read(Buffer)
             self.DataStore.setCurrentWeather(data)
             if DEBUG_WEATHER_DATA > 1:
@@ -3475,12 +2905,12 @@ class CCommunicationService(object):
         thisAddr = bytes_to_addr(buf[0][10], buf[0][11], buf[0][12])
         latestIndex = addr_to_index(latestAddr)
         thisIndex = addr_to_index(thisAddr)
-        ts = tstr_to_ts(str(data.Pos1_Time))
+        ts = tstr_to_ts(str(data.Pos1DateTime))
 
         nrec = get_index(latestIndex - thisIndex)
         logdbg('handleHistoryData: time=%s'
                ' this=%d (0x%04x) latest=%d (0x%04x) nrec=%d' %
-               (data.Pos1_Time, thisIndex, thisAddr, latestIndex, latestAddr, nrec))
+               (data.Pos1DateTime, thisIndex, thisAddr, latestIndex, latestAddr, nrec))
 
         # track the latest history index
         self.DataStore.setLastHistoryIndex(thisIndex)
