@@ -15,18 +15,13 @@
 #
 # See http://www.gnu.org/licenses/
 #
-# Thanks to Eddie De Pieri for the first Python implementation for WS-28xx.
-# Eddie did the difficult work of decompiling HeavyWeather then converting
-# and reverse engineering into a functional Python implementation.  Eddie's
-# work was based on reverse engineering of HeavyWeather 2800 v 1.54
-#
-# Thanks to Lucas Heijst for enumerating the console message types and for
-# debugging the transceiver/console communication timing issues.
+# The driver logic is adapted from the ws28xx driver for LaCrosse 2800 and
+# TFA Primus and Opus weather stations.
 #
 # Thanks to Michael Schulze for making the sensor map dynamic.
 #
-# Also many thanks to our testers, in special Boris Smeds and Raffael Bösch.
-# Without their help I couldn't write this driver.
+# Also many thanks to our testers, in special Boris Smeds and Raffael Boesch.
+# Without their help we couldn't write this driver.
 #
 
 """
@@ -55,9 +50,9 @@ KlimaLogg driver settings in weewx.conf:
 
     # debug flags:
     #  0=no logging; 1=minimum logging; 2=normal logging; 3=detailed logging
-    debug_comm = 2
+    debug_comm = 1
     debug_config_data = 2
-    debug_weather_data = 2
+    debug_weather_data = 1
     debug_history_data = 2
     debug_dump_format = auto
 
@@ -146,7 +141,7 @@ by one of the following methods:
 - Wait until the next whole hour (console clock)
 Note: starting the kl driver automatically initiates synchronisation.
 
-###lh TODO: check which message is initiated by pressing the USB button
+###lh TODO: check if a message is initiated by pressing the USB button
 A Request Time message is received by the transceiver from the
 console. The 'Send Time to WS' message should be sent within ms (10 ms
 typical). The transceiver should handle the 'Time SET' message then send a
@@ -268,7 +263,7 @@ Config checksum [CfgCS] (CheckSum = sum of bytes (5-122) + 7)
 Action:
 00: rtGetHistory     - Ask for History message
 01: rtSetTime        - Ask for Send Time to weather station message
-02: rtSetConfig      - Ask for Send Config to weather station message (not tested yet)
+02: rtSetConfig      - Ask for Send Config to weather station message
 02: rtReqFirstConfig - Ask for Send (First) Config to weather station message
 03: rtGetConfig      - Ask for Config message
 04: rtGetCurrent     - Ask for Current Weather message
@@ -516,7 +511,7 @@ byte4     2 dec: day+=10*byte4
 byte5     1 dec: day+=byte5 
 
 time conversion: (00:52)
-byte1     0 hex: if byte1 >= 10 then hours=10+byte1 else hours=byte1 (not tested)
+byte1     0 hex: if byte1 >= 10 then hours=10+byte1 else hours=byte1
 byte2     5 hex: if byte2 >= 10 then hours+=10; minutes=(byte2-10)*10 else minutes=byte2*10
 byte3     2 dec: minutes+=byte3
 
@@ -704,22 +699,22 @@ start   chars note  name
 
 Notes:
 
-1	DevID - an unique identifier of the USB-transceiver
-2	Action
-	10 startup message 
-	30 weather message
-	40 historical message
-	51 startup message
-	53 startup message
-3	Signal quality 0-100%
-4	DeviceCS - checksum of device parameter message
-5	LatestAddress - address of newest historical record
-	History record = (LatestAddres - 0x070000) / 32 
-6	ThisAddress - address of actual historical record
-	History record = (ThisAddress - 0x070000) / 32
-7	Newest record
-	Note: up to 6 records can all have the same data as the newest record
-8	Eldest record
+1    DevID - an unique identifier of the USB-transceiver
+2    Action
+     10 startup message 
+     30 weather message
+     40 historical message
+     51 startup message
+     53 startup message
+3    Signal quality 0-100%
+4    DeviceCS - checksum of device parameter message
+5    LatestAddress - address of newest historical record
+     History record = (LatestAddres - 0x070000) / 32 
+6    ThisAddress - address of actual historical record
+     History record = (ThisAddress - 0x070000) / 32
+7    Newest record
+     Note: up to 6 records can all have the same data as the newest record
+8    Eldest record
 
 -------------------------------------------------------------------------------
 date conversion: (2013-05-16)
@@ -766,13 +761,13 @@ Example of a Historical message
 
 Note: if start == x.5: StartOnLowNibble else: StartOnHiNibble
 
-start   chars	name
+start   chars    name
 0        4       DevID
 2        2       '00'
 3        2       Action
 4        2       Quality
 5        2       Settings 8=? | 0-7=contrast, 8=alert OFF, 4=DCF ON, 2=clock 12h, 1=temp-F
-6        2       TimeZone f4 (-12) =tz -12h, 00=tz 0h, 0c (+12) = tz +12h
+6        2       TimeZone difference with Frankfurt (CET) f4 (-12) =tz -12h, 00=tz 0h, 0c (+12) = tz +12h
 7        2       HistoryInterval 0=1 min, 1=5min, 2=10 min, 3=15 min, 4=30 min, 5=60 min, 6=2 hr, 7=3hr, 8=6 hr
 8        3       Temp0Max (reverse group 1)
 9,5      3       Temp0Min (reverse group 1)
@@ -1039,7 +1034,7 @@ import weewx.wxformulas
 import weeutil.weeutil
 
 DRIVER_NAME = 'KlimaLogg'
-DRIVER_VERSION = '0.28_0'
+DRIVER_VERSION = '0.28_6'
 
 
 def loader(config_dict, engine):
@@ -1090,14 +1085,10 @@ def logmsg(dst, msg):
 
 
 def logdbg(msg):
-    ###lh logmsg(syslog.LOG_DEBUG, msg)
-    ###lh work around for debug and info messages not printed
     logmsg(syslog.LOG_ERR, msg)
 
 
 def loginf(msg):
-    ###lh logmsg(syslog.LOG_INFO, msg)
-    ###lh work around for debug and info messages not printed
     logmsg(syslog.LOG_ERR, msg)
 
 
@@ -1318,7 +1309,7 @@ class KlimaLoggConfigurator(weewx.drivers.AbstractConfigurator):
     @staticmethod
     def set_interval(maxtries, interval, prompt):
         """Set the station archive interval"""
-        print "This feature is not yet implemented"
+        print 'This feature is not yet implemented, arguments: %s %s %s' % (maxtries, interval, prompt)
 
     def show_info(self, maxtries):
         """Query the station then display the settings."""
@@ -1386,14 +1377,11 @@ class KlimaLoggConfigurator(weewx.drivers.AbstractConfigurator):
 class KlimaLoggDriver(weewx.drivers.AbstractDevice):
     """Driver for TFA KlimaLogg stations."""
 
-    ###lh TODO: sort out the exact number for KlimaLogg Pro weather station
-    ###lh First guess: 50000 registrations; to be save for the first 
-    ###lh "full cycle" set it initially to 50100
-    max_records = 50100
+    ###lh TODO: sort out the exact number of max_records for the KlimaLogg Pro weather station
+    ###lh First guess: 50000 registrations; to be save for the first 'full cycle' set it initially to 50010
+    max_records = 50010
 
-    def __init__(self, model='TFA KlimaLogg', polling_interval=10, comm_interval=6, transceiver_frequency='EU',
-                 device_id=None, serial=None, sensor_map=DEFAULT_SENSOR_MAP, debug_comm=0, debug_config_data=0,
-                 debug_weather_data=0, debug_history_data=0, debug_dump_format='auto', **stn_dict):
+    def __init__(self, **stn_dict) :
         """Initialize the station object.
 
         model: Which station model is this?
@@ -1422,13 +1410,13 @@ class KlimaLoggDriver(weewx.drivers.AbstractDevice):
         [Optional. Default is None]
         """
 
-        self.model            = model
-        self.polling_interval = int(polling_interval)
-        self.comm_interval    = int(comm_interval)
-        self.frequency        = transceiver_frequency
-        self.device_id        = device_id
-        self.serial           = serial
-        self.sensor_map       = sensor_map
+        self.model            = stn_dict.get('model', 'TFA KlimaLogg')
+        self.polling_interval = int(stn_dict.get('polling_interval', 10))
+        self.comm_interval    = int(stn_dict.get('comm_interval', 6))
+        self.frequency        = stn_dict.get('transceiver_frequency', 'US')
+        self.device_id        = stn_dict.get('device_id', None)
+        self.serial           = stn_dict.get('serial', None)
+        self.sensor_map       = stn_dict.get('sensor_map', DEFAULT_SENSOR_MAP)
 
         self.vendor_id        = 0x6666
         self.product_id       = 0x5555
@@ -1445,15 +1433,15 @@ class KlimaLoggDriver(weewx.drivers.AbstractDevice):
         self._empty_packet_count = 0
 
         global DEBUG_COMM
-        DEBUG_COMM = int(debug_comm)
+        DEBUG_COMM = int(stn_dict.get('debug_comm', 0))
         global DEBUG_CONFIG_DATA
-        DEBUG_CONFIG_DATA = int(debug_config_data)
+        DEBUG_CONFIG_DATA = int(stn_dict.get('debug_config_data', 0))
         global DEBUG_WEATHER_DATA
-        DEBUG_WEATHER_DATA = int(debug_weather_data)
+        DEBUG_WEATHER_DATA = int(stn_dict.get('debug_weather_data', 0))
         global DEBUG_HISTORY_DATA
-        DEBUG_HISTORY_DATA = int(debug_history_data)
+        DEBUG_HISTORY_DATA = int(stn_dict.get('debug_history_data', 0))
         global DEBUG_DUMP_FORMAT
-        DEBUG_DUMP_FORMAT = debug_dump_format
+        DEBUG_DUMP_FORMAT = stn_dict.get('debug_dump_format', 'auto')
 
         loginf('driver version is %s' % DRIVER_VERSION)
         loginf('frequency is %s' % self.frequency)
@@ -1646,7 +1634,7 @@ class KlimaLoggDriver(weewx.drivers.AbstractDevice):
                     x = data.values[k]
                 packet[self.sensor_map[k]] = x
 
-        ###lh TODO: battery flags
+        ###lh TODO: sort out the battery flags of the KlimaLogg Pro with 0-8 sensors
 
         return packet
 
@@ -1749,8 +1737,8 @@ class EHistoryInterval:
 
 class EAction:
     aGetHistory      = 0
-    aReqSetTime      = 1  ### action not known yet
-    aReqSetConfig    = 2  ### action not known yet
+    aReqSetTime      = 1
+    aReqSetConfig    = 2
     aGetConfig       = 3
     aGetCurrent      = 4
     aSendConfig      = 0x20
@@ -1793,7 +1781,6 @@ def getFrequencyStandard(frequency):
     logerr("unknown frequency '%s', using US" % frequency)
     return EFrequency.fsUS
 
-###lh TODO: sort out battery flags KlimaLogg Pro with 0-8 sensors
 
 history_intervals = {
     EHistoryInterval.hi01Min: 1,
@@ -2249,15 +2236,16 @@ class StationConfig(object):
         values['InBufCS'] = (buf[0][123] << 8) | buf[0][124]
         # checksum is not calculated for ResetHiLo (Output only)
         values['OutBufCS'] = calc_checksum(buf, 5, end=122) + 7
-        # Set historyInterval to 5 minutes if > 5 minutes (default: 15 minutes)
-        ###lh if values['HistoryInterval'] > EHistoryInterval.hi05Min:
-        ###lh     values['HistoryInterval'] = EHistoryInterval.hi05Min
-
         self.values = values
 
     def testConfigChanged(self, buf):
         nbuf = [0]
         nbuf[0] = buf[0]
+        # Set historyInterval to 5 minutes if > 5 minutes (default: 15 minutes)
+        ###lh if self.values['HistoryInterval'] > EHistoryInterval.hi05Min:
+        ###lh     logdbg('testConfigChanged: Change HistoryInterval to 5 minutes')
+        ###lh     self.values['HistoryInterval'] = EHistoryInterval.hi05Min
+
         nbuf[0][5] = self.values['Settings']
         nbuf[0][6] = self.values['TimeZone']
         nbuf[0][7] = self.values['HistoryInterval']
@@ -2313,7 +2301,7 @@ class StationConfig(object):
         logdbg('InBufCS=  %04x' % self.values['InBufCS'])
         logdbg('Settings= %02x: contrast=%s, alert=%s, DCF reception=%s, time format=%s temp format=%s' %
                (self.values['Settings'], contrast, alert, dcf_recep, time_form, temp_form))
-        logdbg('TimeZone= %02x (tz: %s hour)' % (self.values['TimeZone'], time_zone))
+        logdbg('TimeZone difference with Frankfurt (CET) = %02x (tz: %s hour)' % (self.values['TimeZone'], time_zone))
         logdbg('HistoryInterval= %02x, period=%s minute(s)' % (self.values['HistoryInterval'], history_interval))
         byte_str = ' '.join(['%02x' % x for x in self.values['AlarmData'][0]])
         logdbg('AlarmData=     %s' % byte_str)
@@ -2769,9 +2757,7 @@ class sHID(object):
         if DEBUG_COMM == 1:
             self.dump('getFrame', buf, 'short')
         elif DEBUG_COMM > 1:
-            ###lh temporary short to save space
-            ###lh self.dump('getFrame', buf, fmt=DEBUG_DUMP_FORMAT)
-            self.dump('getFrame', buf, fmt='short')
+            self.dump('getFrame', buf, fmt=DEBUG_DUMP_FORMAT)
         data[0] = new_data
         numBytes[0] = new_numBytes
 
@@ -3007,18 +2993,17 @@ class CCommunicationService(object):
         cfgbuf = [0]
         cfgbuf[0] = [0]*125
         changed = self.DataStore.StationConfig.testConfigChanged(cfgbuf)
-        ###lh self.shid.dump('Out_lh1', cfgbuf[0], fmt='long', length=125)  # temporary dump buffer
         if changed:
             newbuf[0][0] = buf[0][0]
             newbuf[0][1] = buf[0][1]
             newbuf[0][2] = buf[0][2]
-            newbuf[0][3] = EAction.aGetCurrent  ###lh EAction.aSendConfig # 0x20 # change this value if we won't store config
+            newbuf[0][3] = EAction.aSendConfig # 0x20 # change this value if we won't store config
             newbuf[0][4] = buf[0][4]
             for i in xrange(5, 125):
                 newbuf[0][i] = cfgbuf[0][i]
             buf[0] = newbuf[0]
             length = 125  # 0x7d
-            ### lh self.shid.dump('Out_lh2', buf[0], fmt='long', length=125)  # temporary dump buffer
+            self.shid.dump('Out_lh2', buf[0], fmt='long', length=125)  # temporary dump buffer
         else:  # current config not up to date; do not write yet
             length = 0
         return length
@@ -3040,9 +3025,10 @@ class CCommunicationService(object):
         newbuf[0][6] = (tm[5] % 10) + 0x10 * (tm[5] // 10)  #sec
         newbuf[0][7] = (tm[4] % 10) + 0x10 * (tm[4] // 10)  #min
         newbuf[0][8] = (tm[3] % 10) + 0x10 * (tm[3] // 10)  #hour
-        #DayOfWeek = tm[6] - 1; #ole from 1 - 7 - 1=Sun... 0-6 0=Sun
-        DayOfWeek = tm[6]+1       #py  from 0 - 6 - 0=Mon
-        # mo=1, tu=2, we=3, th=4, fr=5, sa=6, su=7
+        ###lh DayOfWeek = tm[6]      #py  from 0 - 6 - 0=Mon
+        ###lh mo=0, tu=1, we=2, th=3, fr=4, sa=5, su=6  # DayOfWeek format of ws28xx devices
+        DayOfWeek = tm[6]+1       #py  from 1 - 7 - 1=Mon
+        ###lh mo=1, tu=2, we=3, th=4, fr=5, sa=6, su=7  # DayOfWeek format of klimalogg devices ???
         newbuf[0][9]  = DayOfWeek % 10 + 0x10 * (tm[2] % 10)           #day_lo   + DoW
         newbuf[0][10] = (tm[2] // 10)  + 0x10 * (tm[1] % 10)           #month_lo + day_hi
         newbuf[0][11] = (tm[1] // 10)  + 0x10 * ((tm[0] - 2000) % 10)  #year-lo  + month-hi
@@ -3107,7 +3093,6 @@ class CCommunicationService(object):
 
     def handleConfig(self, buf, length):
         logdbg('handleConfig: %s' % self.timing())
-        ###lh self.shid.dump('In_lh', buf[0], fmt='long', length=125)  # temporary dump buffer
         if DEBUG_CONFIG_DATA > 2:
             self.shid.dump('InBuf', buf[0], fmt='long', length=125)
         newbuf = [0]
@@ -3162,10 +3147,10 @@ class CCommunicationService(object):
 
         cfgbuf = [0]
         cfgbuf[0] = [0]*125
+
         changed = self.DataStore.StationConfig.testConfigChanged(cfgbuf)
-        ###lh self.shid.dump('Out_lh3', cfgbuf[0], fmt='long', length=125)  # temporary dump buffer
         inBufCS = self.DataStore.StationConfig.getInBufCS()
-        if inBufCS == 0:  ###lh for test only if empty #or inBufCS != cs:
+        if inBufCS == 0 or inBufCS != cs:
             # request for a get config
             logdbg('handleCurrentData: inBufCS of station does not match')
             self.setSleep(0.300, 0.010)
@@ -3174,9 +3159,7 @@ class CCommunicationService(object):
             # Request for a set config
             logdbg('handleCurrentData: outBufCS of station changed')
             self.setSleep(0.300, 0.010)
-            ###lh first check outbuf before sending a ReqSetConfig
-            ###lh newlen[0] = self.buildACKFrame(newbuf, EAction.aReqSetConfig, cs)
-            newlen[0] = self.buildACKFrame(newbuf, EAction.aGetHistory, cs)
+            newlen[0] = self.buildACKFrame(newbuf, EAction.aReqSetConfig, cs)
         else:
             # Request for either a history message or a current weather message
             # In general we don't use EAction.aGetCurrent to ask for a current
@@ -3226,39 +3209,36 @@ class CCommunicationService(object):
         # FIXME: what if we do not have config data yet?
         cfg = self.getConfigData().asDict()
         dcfOn = 0 if int(cfg['settings']) & 0x4 == 0 else 1
-
+        requestSetTime = False
         # if DCF ON: check for an actual history record (tsPos1 == tsPos2)
         # if history date/time differs more than 1 hour (3600 s) from now: reqSetTime
-        if dcfOn == 1 and tsPos1 == tsPos2 and timeDiff > 3600:
-            requestSetTime = True
-            logdbg('DCF=ON: History record %s: date/time %s differs %s seconds from date/time now %s; send time to KlimaLogg (may not work)' %
-                   (thisIndex,
-                    tsFirstRec,
-                    timeDiff,
-                    now))
-        else:
-            requestSetTime = False
-
+        if dcfOn == 1:
+            if tsPos1 == tsPos2 and timeDiff > 3600:
+                requestSetTime = True
+                logdbg('DCF=ON: History record %s: date/time %s differs %s seconds from date/time now %s; send time to KlimaLogg (may not work)' %
+                       (thisIndex,
+                        tsFirstRec,
+                        timeDiff,
+                        now))
         # if DCF OFF: check for an actual history record (tsPos1 == tsPos2)
         # if history date/time differs more than 30 seconds from now: reqSetTime
-        if dcfOn == 0 and tsPos1 == tsPos2 and timeDiff > 30:
-            requestSetTime = True
-            logdbg('DCF=OFF: History record %s: date/time %s differs %s seconds from date/time now %s; send time to KlimaLogg (may not work)' %
-                   (thisIndex,
-                    tsFirstRec,
-                    timeDiff,
-                    now))
-        else:
-            requestSetTime = False
+        elif dcfOn == 0:
+            if tsPos1 == tsPos2 and timeDiff > 30:
+                requestSetTime = True
+                logdbg('DCF=OFF: History record %s: date/time %s differs %s seconds from date/time now %s; send time to KlimaLogg (may not work)' %
+                       (thisIndex,
+                        tsFirstRec,
+                        timeDiff,
+                        now))
 
         nrec = get_index(latestIndex - thisIndex)
         logdbg('handleHistoryData: time=%s'
                ' this=%d (0x%04x) latest=%d (0x%04x) nrec=%d' %
                (data.values['Pos1DT'],
                 thisIndex, thisAddr, latestIndex, latestAddr, nrec))
-        ###lh workaround for nrec as big as 50,000; limit this later to 1500 or so
-        if nrec > 20:  #later: 1500:
-            nrec = 20  #later: 1500
+        ###lh Workaround for nrec as big as 50,000; limit this number to 1500
+        if nrec > 1500:
+            nrec = 1500
 
         # track the latest history index
         self.DataStore.setLastHistoryIndex(thisIndex)
@@ -3305,10 +3285,7 @@ class CCommunicationService(object):
                         tsCurrentRec = tstr_to_ts(str(data.values['Pos%dDT' % x]))
                         if tsCurrentRec != ts1900 and tsCurrentRec >= self.history_cache.since_ts:
                             # Check if two records in a row with the same ts
-                            if tsCurrentRec == tsLastRec:
-                                logdbg('handleHistoryData: skip record at Pos%d with duplicate timestamp: %s' %
-                                       (x, weeutil.weeutil.timestamp_to_string(tsCurrentRec)))
-                            else:
+                            if tsCurrentRec != tsLastRec:
                                 # append record to the history
                                 logdbg('handleHistoryData: append record at Pos%d with index %s: %s' %
                                        (x, thisIndex, data.asDict(x)))
@@ -3318,7 +3295,7 @@ class CCommunicationService(object):
                         elif tsCurrentRec == ts1900:
                             logerr('handleHistoryData: skip record at Pos%d: tsCurrentRec=None' % x)
                         else:
-                            logdbg('handleHistoryData: skip record at Pos%d: tsCurrentRec=%s < since_ts=%s' %
+                            logdbg('handleHistoryData: skip record at Pos%d: tsCurrentRec=%s < %s' %
                                    (x, weeutil.weeutil.timestamp_to_string(tsCurrentRec),
                                     weeutil.weeutil.timestamp_to_string(self.history_cache.since_ts)))
                         tsLastRec = tsCurrentRec
@@ -3358,12 +3335,9 @@ class CCommunicationService(object):
             newlen[0] = self.buildFirstConfigFrame(newbuf, cs)
         elif buf[0][3] == EResponseType.rtReqSetConfig:
             logdbg('handleNextAction: 52 (set config data)')
-            ###lh self.setSleep(0.075, 0.005)
-            ###lh newlen[0] = self.buildConfigFrame(newbuf)
-            ###lh ignore this message for the time being; request history message instead
+            self.setSleep(0.075, 0.005)
+            newlen[0] = self.buildConfigFrame(newbuf)
             logdbg('handleNextAction: %02x' % buf[0][3])
-            self.setSleep(0.300, 0.010)
-            newlen[0] = self.buildACKFrame(newbuf, EAction.aGetHistory, cs)
         elif buf[0][3] == EResponseType.rtReqSetTime:
             logdbg('handleNextAction: 53 (set time data)')
             self.setSleep(0.075, 0.005)
