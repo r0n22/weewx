@@ -48,9 +48,9 @@ configuration.
 
 Apparently the station console determines when data will be sent, and, once
 paired, the transceiver is always listening.  The station console sends a
-broadcast on the hour*.  If the transceiver responds, the station console may
-continue to broadcast data, depending on the transceiver response and the
-timing of the transceiver response.
+broadcast once a day at midnight*.  If the transceiver responds, the station
+console may continue to broadcast data, depending on the transceiver response
+and the timing of the transceiver response.
 * when DCF time reception is OFF
 
 The following information was obtained by logging messages from the kl.py
@@ -70,15 +70,12 @@ When the console and transceiver stop communicating, they can be synchronized
 by one of the following methods:
 
 - Push the USB button on the console
-- Wait until the next whole hour (console clock)
+- Wait until the next day at 00:00 (console clock)
 Note: starting the kl driver automatically initiates synchronisation.
 
-###lh TODO: check if a message is initiated by pressing the USB button
-A Request Time message is received by the transceiver from the
-console. The 'Send Time to WS' message should be sent within ms (10 ms
-typical). The transceiver should handle the 'Time SET' message then send a
-'Time/Config written' message about 85 ms after the 'Send Time to WS' message.
-When complete, the console and transceiver will have been synchronized.
+A Current Weather message is received by the transceiver from the
+console. After a setState message is reiceived from the driver,
+the console and transceiver will have been synchronized.
 
 Timing
 
@@ -151,21 +148,21 @@ Response type:
 52: Request SetConfig
 53: Request SetTime
 
-000:  00 00 07 DevID 00 10 64 CfgCS xx xx xx xx xx xx xx xx xx  Time/Config written
-000:  00 00 7d DevID 00 20 64 [ConfigData .. .. .. .. .. CfgCS] GetConfig
-000:  00 00 e5 DevID 00 30 64 CfgCS [CurData .. .. .. .. .. ..  Current Weather
-000:  00 00 b5 DevID 00 40 64 CfgCS LateAdr  ThisAdr  [HisData  Outstanding History
-000:  00 00 b5 DevID 00 40 64 CfgCS LateAdr  ThisAdr  [HisData  Actual History
-000:  00 00 b5 DevID 00 50 64 CfgCS xx xx xx xx xx xx xx xx xx  Quality or MEM percent ???
+000:  00 00 07 DevID LI 10 64 CfgCS xx xx xx xx xx xx xx xx xx  Time/Config written
+000:  00 00 7d DevID LI 20 64 [ConfigData .. .. .. .. .. CfgCS] GetConfig
+000:  00 00 e5 DevID LI 30 64 CfgCS [CurData .. .. .. .. .. ..  Current Weather
+000:  00 00 b5 DevID LI 40 64 CfgCS LateAdr  ThisAdr  [HisData  Outstanding History
+000:  00 00 b5 DevID LI 40 64 CfgCS LateAdr  ThisAdr  [HisData  Actual History
+000:  00 00 b5 DevID LI 50 64 CfgCS xx xx xx xx xx xx xx xx xx  Quality or MEM percent ???
 000:  00 00 07 f0 f0 ff 51 64 CfgCS xx xx xx xx xx xx xx xx xx  Request FirstConfig
-000:  00 00 07 DevID 00 52 64 CfgCS xx xx xx xx xx xx xx xx xx  Request SetConfig
-000:  00 00 07 DevID 00 53 64 CfgCS xx xx xx xx xx xx xx xx xx  Request SetTime
+000:  00 00 07 DevID LI 52 64 CfgCS xx xx xx xx xx xx xx xx xx  Request SetConfig
+000:  00 00 07 DevID LI 53 64 CfgCS xx xx xx xx xx xx xx xx xx  Request SetTime
 
 00:    messageID
 01:    00
 02:    Message Length (starting with next byte)
 03-04: DeviceID          [devID]
-05:    00/ff             ??? maybe battery alarm flags
+05:    LI/ff             Logger ID: 0-9 = Logger 1 - logger 10
 06:    responseType
 07:    Signal Quality   (in steps of 5)
 
@@ -212,21 +209,21 @@ Action:
 20: Send Config      - Send Config to WS
 60: Send Time        - Send Time to WS (works only if station is just initialized)
 
-000:  d5 00 0b DevID 00 00 CfgCS 80 cInt ThisAdr xx xx xx  rtGetHistory 
-000:  d5 00 0b DevID 00 01 CfgCS 80 cInt ThisAdr xx xx xx  rtReqSetTime
+000:  d5 00 0b DevID LI 00 CfgCS 80 cInt ThisAdr xx xx xx  rtGetHistory
+000:  d5 00 0b DevID LI 01 CfgCS 80 cInt ThisAdr xx xx xx  rtReqSetTime
 000:  d5 00 0b f0 f0 ff 02 ff ff 80 cInt ThisAdr xx xx xx  rtReqFirstConfig
-000:  d5 00 0b DevID 00 02 CfgCS 80 cInt ThisAdr xx xx xx  rtReqSetConfig
-000:  d5 00 0b DevID 00 03 CfgCS 80 cInt ThisAdr xx xx xx  rtGetConfig
-000:  d5 00 0b DevID 00 04 CfgCS 80 cInt ThisAdr xx xx xx  rtGetCurrent
-000:  d5 00 7d DevID 00 20 [ConfigData  .. .. .. .. CfgCS] Send Config
-000:  d5 00 0d DevID 00 60 CfgCS [TimeData .. .. .. .. ..  Send Time
+000:  d5 00 0b DevID LI 02 CfgCS 80 cInt ThisAdr xx xx xx  rtReqSetConfig
+000:  d5 00 0b DevID LI 03 CfgCS 80 cInt ThisAdr xx xx xx  rtGetConfig
+000:  d5 00 0b DevID LI 04 CfgCS 80 cInt ThisAdr xx xx xx  rtGetCurrent
+000:  d5 00 7d DevID LI 20 [ConfigData  .. .. .. .. CfgCS] Send Config
+000:  d5 00 0d DevID LI 60 CfgCS [TimeData .. .. .. .. ..  Send Time
 
 All SetFrame messages:
 00:    messageID
 01:    00
 02:    Message length (starting with next byte)
 03-04: DeviceID           [DevID]
-05:    00 (/ff)           ??? maybe battery alarm flags
+05:    LI/ff              Logger ID: 0-9 = Logger 1 - logger 10
 06:    Action
 07-08: Config checksum    [CfgCS]
 
@@ -441,8 +438,20 @@ start  chars name
 218.5  3  Temp8_Max
 220    3  Temp8_Min
 221.5  3  Temp8
-223    12 Data ('000000000000') (Unknown data)
+223    12 AlarmData* ('000000000000')
 229    0  end
+
+* AlarmData
+Humidity0Max: 00 00 00 00 00 01 00 00 00 00 00 00
+Humidity0Min: 00 00 00 00 00 02 00 00 00 00 00 00
+Temp0Max:     00 00 00 00 00 04 00 00 00 00 00 00
+Temp0Min:     00 00 00 00 00 08 00 00 00 00 00 00
+Humidity1Max: 00 00 00 00 00 10 00 00 00 00 00 00
+Humidity1Min: 00 00 00 00 00 20 00 00 00 00 00 00
+Temp1Max:     00 00 00 00 00 40 00 00 00 00 00 00
+Temp1Min:     00 00 00 00 00 80 00 00 00 00 00 00
+etc, etc
+
 
 -------------------------------------------------------------------------------
 date conversion: (2013-06-21)
@@ -700,24 +709,24 @@ Example of a Historical message
 
 Example of a debug log:
 
-Jan 19 17:14:46 RFComm: Pos1DT 2015-01-19 16:30:00, Pos1Temp0 = 20.3, Pos1Humidity0 = 37.0
-Jan 19 17:14:46 RFComm: Pos1Temp 1-8     = 7.1, 7.8, 6.6, 16.2, 8.3, 81.1, 81.1, 81.1
-Jan 19 17:14:46 RFComm: Pos1Humidity 1-8 =  69,  66,  78,  52,  68, 110, 110, 110
-Jan 19 17:14:46 RFComm: Pos2DT 2015-01-19 16:35:00, Pos2Temp0 = 20.3, Pos2Humidity0 = 37.0
-Jan 19 17:14:46 RFComm: Pos2Temp 1-8     = 7.1, 7.8, 6.6, 16.0, 8.2, 81.1, 81.1, 81.1
-Jan 19 17:14:46 RFComm: Pos2Humidity 1-8 =  69,  66,  78,  51,  68, 110, 110, 110
-Jan 19 17:14:46 RFComm: Pos3DT 2015-01-19 16:40:00, Pos3Temp0 = 20.4, Pos3Humidity0 = 36.0
-Jan 19 17:14:46 RFComm: Pos3Temp 1-8     = 7.1, 7.8, 6.6, 16.0, 8.2, 81.1, 81.1, 81.1
-Jan 19 17:14:46 RFComm: Pos3Humidity 1-8 =  69,  66,  78,  51,  68, 110, 110, 110
-Jan 19 17:14:46 RFComm: Pos4DT 2015-01-19 16:45:00, Pos4Temp0 = 20.4, Pos4Humidity0 = 37.0
-Jan 19 17:14:46 RFComm: Pos4Temp 1-8     = 7.1, 7.8, 6.6, 16.0, 8.2, 81.1, 81.1, 81.1
-Jan 19 17:14:46 RFComm: Pos4Humidity 1-8 =  69,  66,  78,  51,  68, 110, 110, 110
-Jan 19 17:14:46 RFComm: Pos5DT 2015-01-19 16:50:00, Pos5Temp0 = 20.4, Pos5Humidity0 = 37.0
-Jan 19 17:14:46 RFComm: Pos5Temp 1-8     = 7.1, 7.8, 6.6, 16.6, 8.2, 81.1, 81.1, 81.1
-Jan 19 17:14:46 RFComm: Pos5Humidity 1-8 =  69,  66,  78,  50,  67, 110, 110, 110
-Jan 19 17:14:46 RFComm: Pos6DT 2015-01-19 16:55:00, Pos6Temp0 = 20.4, Pos6Humidity0 = 37.0
-Jan 19 17:14:46 RFComm: Pos6Temp 1-8     = 7.1, 7.8, 6.6, 17.1, 8.1, 81.1, 81.1, 81.1
-Jan 19 17:14:46 RFComm: Pos6Humidity 1-8 =  69,  66,  78,  50,  68, 110, 110, 110
+Jan 19 17:14:46 RFComm: Pos1DT: 2015-01-19 16:30:00, Pos1Temp0 = 20.3, Pos1Humidity0 = 37.0
+Jan 19 17:14:46 RFComm: Pos1Temp 1-8:      7.1, 7.8, 6.6, 16.2, 8.3, 81.1, 81.1, 81.1
+Jan 19 17:14:46 RFComm: Pos1Humidity 1-8:  69,  66,  78,  52,  68, 110, 110, 110
+Jan 19 17:14:46 RFComm: Pos2DT: 2015-01-19 16:35:00, Pos2Temp0 = 20.3, Pos2Humidity0 = 37.0
+Jan 19 17:14:46 RFComm: Pos2Temp 1-8:      7.1, 7.8, 6.6, 16.0, 8.2, 81.1, 81.1, 81.1
+Jan 19 17:14:46 RFComm: Pos2Humidity 1-8:  69,  66,  78,  51,  68, 110, 110, 110
+Jan 19 17:14:46 RFComm: Pos3DT: 2015-01-19 16:40:00, Pos3Temp0 = 20.4, Pos3Humidity0 = 36.0
+Jan 19 17:14:46 RFComm: Pos3Temp 1-8:      7.1, 7.8, 6.6, 16.0, 8.2, 81.1, 81.1, 81.1
+Jan 19 17:14:46 RFComm: Pos3Humidity 1-8:  69,  66,  78,  51,  68, 110, 110, 110
+Jan 19 17:14:46 RFComm: Pos4DT: 2015-01-19 16:45:00, Pos4Temp0 = 20.4, Pos4Humidity0 = 37.0
+Jan 19 17:14:46 RFComm: Pos4Temp 1-8:      7.1, 7.8, 6.6, 16.0, 8.2, 81.1, 81.1, 81.1
+Jan 19 17:14:46 RFComm: Pos4Humidity 1-8:  69,  66,  78,  51,  68, 110, 110, 110
+Jan 19 17:14:46 RFComm: Pos5DT: 2015-01-19 16:50:00, Pos5Temp0 = 20.4, Pos5Humidity0 = 37.0
+Jan 19 17:14:46 RFComm: Pos5Temp 1-8:      7.1, 7.8, 6.6, 16.6, 8.2, 81.1, 81.1, 81.1
+Jan 19 17:14:46 RFComm: Pos5Humidity 1-8:  69,  66,  78,  50,  67, 110, 110, 110
+Jan 19 17:14:46 RFComm: Pos6DT: 2015-01-19 16:55:00, Pos6Temp0 = 20.4, Pos6Humidity0 = 37.0
+Jan 19 17:14:46 RFComm: Pos6Temp 1-8:      7.1, 7.8, 6.6, 17.1, 8.1, 81.1, 81.1, 81.1
+Jan 19 17:14:46 RFComm: Pos6Humidity 1-8:  69,  66,  78,  50,  68, 110, 110, 110
 
 -------------------------------------------------------------------------------
 14. Set Config Message
@@ -841,7 +850,7 @@ start   chars   name
 50      2       Humidity7Min
 51      2       Humidity8Max
 52      2       Humidity8Min
-53     10       AlarmData
+53     10       AlarmSet*
 58     16       Description1
 66     16       Description2
 74     16       Description3
@@ -853,6 +862,17 @@ start   chars   name
 122     2       ResetHiLo (output only)
 124     2       inBufCS
 125     0       end
+
+* AlarmSet
+Humidity0Max: 00 00 00 00 01
+Humidity0Min: 00 00 00 00 02
+Temp0Max:     00 00 00 00 04
+Temp0Min:     00 00 00 00 08
+Humidity1Max: 00 00 00 00 10
+Humidity1Min: 00 00 00 00 20
+Temp1Max:     00 00 00 00 40
+Temp1Min:     00 00 00 00 80
+etc, etc
 
 Example of Get Config message
 
@@ -868,30 +888,30 @@ Example of Get Config message
 
 Example of debug log:
 
-Jan 19 17:14:54 RFComm: OutBufCS= 1c33
-Jan 19 17:14:54 RFComm: InBufCS=  1c33
-Jan 19 17:14:54 RFComm: Settings= 48: contrast=4, alert=OFF, DCF reception=OFF, time format=24h temp format=C
-Jan 19 17:14:54 RFComm: TimeZone difference with Frankfurt (CET) = 00 (tz: 0 hour)
-Jan 19 17:14:54 RFComm: HistoryInterval= 01, period=5 minute(s)
-Jan 19 17:14:54 RFComm: AlarmData=     00 00 00 00 00
-Jan 19 17:14:54 RFComm: ResetHiLo=     00
-Jan 19 17:14:54 RFComm: Sensor0 =      0.0 - 40.0,  20 -  70
-Jan 19 17:14:54 RFComm: Sensor1 =      0.0 - 40.0,  20 -  70
-Jan 19 17:14:54 RFComm: Sensor2 =      0.0 - 40.0,  20 -  70
-Jan 19 17:14:54 RFComm: Sensor3 =      0.0 - 40.0,  20 -  70
-Jan 19 17:14:54 RFComm: Sensor4 =      0.0 - 40.0,  20 -  70
-Jan 19 17:14:54 RFComm: Sensor5 =      0.0 - 40.0,  20 -  70
-Jan 19 17:14:54 RFComm: Sensor6 =      0.0 - 40.0,  20 -  70
-Jan 19 17:14:54 RFComm: Sensor7 =      0.0 - 40.0,  20 -  70
-Jan 19 17:14:54 RFComm: Sensor8 =      0.0 - 40.0,  20 -  70
-Jan 19 17:14:54 RFComm: Description1 = 00 00 00 0f 44 b0 7b 44; SensorText = GARAGE
-Jan 19 17:14:54 RFComm: Description2 = 0e 06 31 8c d2 69 5b 45; SensorText = COLD WIND
-Jan 19 17:14:54 RFComm: Description3 = 00 00 0c 3c d2 69 5b 45; SensorText = COLDER
-Jan 19 17:14:54 RFComm: Description4 = 07 d7 c5 71 d2 e0 7b 08; SensorText = LIVING ROOM
-Jan 19 17:14:54 RFComm: Description5 = 00 00 00 00 00 e0 63 18; SensorText = WIND
-Jan 19 17:14:54 RFComm: Description6 = 00 00 00 00 00 ff ff 00; SensorText = (No sensor)
-Jan 19 17:14:54 RFComm: Description7 = 00 00 00 00 00 ff ff 00; SensorText = (No sensor)
-Jan 19 17:14:54 RFComm: Description8 = 00 00 00 00 00 ff ff 00; SensorText = (No sensor)
+Jan 19 17:14:54 RFComm: OutBufCS: 1c33
+Jan 19 17:14:54 RFComm: InBufCS:  1c33
+Jan 19 17:14:54 RFComm: Settings: 48: contrast: 4, alert: OFF, DCF reception: OFF, time format: 24h temp format: C
+Jan 19 17:14:54 RFComm: TimeZone difference with Frankfurt (CET): 00 (tz: 0 hour)
+Jan 19 17:14:54 RFComm: HistoryInterval: 01, period=5 minute(s)
+Jan 19 17:14:54 RFComm: AlarmSet:      00 00 00 00 00
+Jan 19 17:14:54 RFComm: ResetHiLo:     00
+Jan 19 17:14:54 RFComm: Sensor0:       0.0 - 40.0,  20 -  70
+Jan 19 17:14:54 RFComm: Sensor1:       0.0 - 40.0,  20 -  70
+Jan 19 17:14:54 RFComm: Sensor2:       0.0 - 40.0,  20 -  70
+Jan 19 17:14:54 RFComm: Sensor3:       0.0 - 40.0,  20 -  70
+Jan 19 17:14:54 RFComm: Sensor4:       0.0 - 40.0,  20 -  70
+Jan 19 17:14:54 RFComm: Sensor5:       0.0 - 40.0,  20 -  70
+Jan 19 17:14:54 RFComm: Sensor6:       0.0 - 40.0,  20 -  70
+Jan 19 17:14:54 RFComm: Sensor7:       0.0 - 40.0,  20 -  70
+Jan 19 17:14:54 RFComm: Sensor8:       0.0 - 40.0,  20 -  70
+Jan 19 17:14:54 RFComm: Description1:  00 00 00 0f 44 b0 7b 44; SensorText:  GARAGE
+Jan 19 17:14:54 RFComm: Description2:  0e 06 31 8c d2 69 5b 45; SensorText:  COLD WIND
+Jan 19 17:14:54 RFComm: Description3:  00 00 0c 3c d2 69 5b 45; SensorText:  COLDER
+Jan 19 17:14:54 RFComm: Description4:  07 d7 c5 71 d2 e0 7b 08; SensorText:  LIVING ROOM
+Jan 19 17:14:54 RFComm: Description5:  00 00 00 00 00 e0 63 18; SensorText:  WIND
+Jan 19 17:14:54 RFComm: Description6:  00 00 00 00 00 ff ff 00; SensorText:  (No sensor)
+Jan 19 17:14:54 RFComm: Description7:  00 00 00 00 00 ff ff 00; SensorText:  (No sensor)
+Jan 19 17:14:54 RFComm: Description8:  00 00 00 00 00 ff ff 00; SensorText:  (No sensor)
 
 -------------------------------------------------------------------------------
 HistoryInterval:
@@ -989,15 +1009,15 @@ Step 6. The action parameter in the setFrame message sets the type of the
   Action (hex):
 
   00: rtGetHistory - Ask for History message
-                     setSleep(0.300, 0.010)
+                     setSleep(FIRST_SLEEP, 0.010)
   01: rtSetTime    - Ask for Send Time to weather station message
                      setSleep(0.075, 0.005)
   02: rtSetConfig  - Ask for Send Config to weather station message
-                     setSleep(0.300, 0.010)
+                     setSleep(FIRST_SLEEP, 0.010)
   03: rtGetConfig  - Ask for Config message
                      setSleep(0.400, 0.400)
   04: rtGetCurrent - Ask for Current Weather message
-                     setSleep(0.300, 0.010)
+                     setSleep(FIRST_SLEEP, 0.010)
   20: Send Config  - Send Config to WS
                      setSleep(0.075, 0.005)
   60: Send Time    - Send Time to WS
@@ -1026,7 +1046,7 @@ import weewx.wxformulas
 import weeutil.weeutil
 
 DRIVER_NAME = 'KlimaLogg'
-DRIVER_VERSION = '0.29p5'
+DRIVER_VERSION = '0.29p8'
 
 
 def loader(config_dict, _):
@@ -1048,8 +1068,9 @@ DEBUG_WEATHER_DATA = 0
 DEBUG_HISTORY_DATA = 0
 DEBUG_DUMP_FORMAT = 'auto'
 
+
 # map the base sensor and 8 remote sensors to columns in the database schema
-DEFAULT_SENSOR_MAP = {
+WVIEW_SENSOR_MAP = {
     'Temp0': 'inTemp',
     'Humidity0': 'inHumidity',
     'Temp1': 'outTemp',
@@ -1069,6 +1090,52 @@ DEFAULT_SENSOR_MAP = {
     'Temp8': 'soilTemp4',
     'Humidity8': 'soilMoist4',
 }
+
+# sensor map when using the kl schema
+KL_SENSOR_MAP = {
+    'Temp0': 'inTemp',
+    'Humidity0': 'inHumidity',
+    'Temp1': 'outTemp',
+    'Humidity1': 'outHumidity',
+    'Temp2': 'temp2',
+    'Humidity2': 'humidity2',
+    'Temp3': 'temp3',
+    'Humidity3': 'humidity3',
+    'Temp4': 'temp4',
+    'Humidity4': 'humidity4',
+    'Temp5': 'temp5',
+    'Humidity5': 'humidity5',
+    'Temp6': 'temp6',
+    'Humidity6': 'humidity6',
+    'Temp7': 'temp7',
+    'Humidity7': 'humidity7',
+    'Temp8': 'temp8',
+    'Humidity8': 'humidity8',
+}
+
+
+# kl schema to use in place of the wview schema
+schema = [('dateTime',    'INTEGER NOT NULL UNIQUE PRIMARY KEY'),
+          ('usUnits',     'INTEGER NOT NULL'),
+          ('interval',    'INTEGER NOT NULL'),
+          ('inTemp',      'REAL'),
+          ('outTemp',     'REAL'),
+          ('inHumidity',  'REAL'),
+          ('outHumidity', 'REAL'),
+          ('temp2',       'REAL'),
+          ('humidity2',   'REAL'),
+          ('temp3',       'REAL'),
+          ('humidity3',   'REAL'),
+          ('temp4',       'REAL'),
+          ('humidity4',   'REAL'),
+          ('temp5',       'REAL'),
+          ('humidity5',   'REAL'),
+          ('temp6',       'REAL'),
+          ('humidity6',   'REAL'),
+          ('temp7',       'REAL'),
+          ('humidity7',   'REAL'),
+          ('temp8',       'REAL'),
+          ('humidity8',   'REAL')]
 
 
 def logmsg(dst, msg):
@@ -1121,10 +1188,10 @@ def get_datum_diff(v, np, ofl):
 
 def calc_checksum(buf, start, end=None):
     if end is None:
-        end = len(buf[0])
+        end = len(buf)
     cs = 0
     for i in xrange(start, end):
-        cs += buf[0][i]
+        cs += buf[i]
     return cs
 
 
@@ -1423,7 +1490,7 @@ class KlimaLoggDriver(weewx.drivers.AbstractDevice):
         self.comm_interval = int(stn_dict.get('comm_interval', 6))
         self.frequency = stn_dict.get('transceiver_frequency', 'EU')
         self.serial = stn_dict.get('serial', None)
-        self.sensor_map = stn_dict.get('sensor_map', DEFAULT_SENSOR_MAP)
+        self.sensor_map = stn_dict.get('sensor_map', WVIEW_SENSOR_MAP)
 
         now = int(time.time())
         self._service = None
@@ -1447,8 +1514,12 @@ class KlimaLoggDriver(weewx.drivers.AbstractDevice):
         global DEBUG_DUMP_FORMAT
         DEBUG_DUMP_FORMAT = stn_dict.get('debug_dump_format', 'auto')
 
+        timing = int(stn_dict.get('timing', 300))
+        self.first_sleep = float(timing)/1000
+
         loginf('driver version is %s' % DRIVER_VERSION)
         loginf('frequency is %s' % self.frequency)
+        loginf('timing is %s ms (%0.3f s)' % (timing, self.first_sleep))
 
         self.startUp()
 
@@ -1579,7 +1650,7 @@ class KlimaLoggDriver(weewx.drivers.AbstractDevice):
     def startUp(self):
         if self._service is not None:
             return
-        self._service = CommunicationService()
+        self._service = CommunicationService(self.first_sleep)
         self._service.setup(self.frequency, self.comm_interval,
                             self.vendor_id, self.product_id, self.serial)
         self._service.startRFThread()
@@ -1739,6 +1810,17 @@ history_intervals = {
     HI_06STD: 360,
     }
 
+LOGGER_1 = 0
+LOGGER_2 = 1
+LOGGER_3 = 2
+LOGGER_4 = 3
+LOGGER_5 = 4
+LOGGER_6 = 5
+LOGGER_7 = 6
+LOGGER_8 = 7
+LOGGER_9 = 8
+LOGGER_10 = 9
+
 # frequency standards and their associated transmission frequencies
 frequencies = {
     'US': 905000000,
@@ -1757,169 +1839,159 @@ class SensorLimits:
 
 class Decode(object):
 
+    CHARMAP = (' ', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+               '0', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
+               'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
+               'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '-', '+', '(',
+               ')', ' ', '*', ',', '/', '\\', ' ', '\.', ' ', ' ',
+               ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+               ' ', ' ', ' ', '@')
+
     @staticmethod
     def toCharacters3_2(buf, start, startOnHiNibble):
         """read 3 (4 bits) nibbles, presentation as 2 (6 bit) characters"""
-        charmap = {0: (' ', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                       '0', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
-                       'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S',
-                       'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '-', '+', '(',
-                       ')', ' ', '*', ',', '/', '\\', ' ', '\.', ' ', ' ',
-                       ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-                       ' ', ' ', ' ', '@')}
         if startOnHiNibble:
-            idx1 = ((buf[0][start+1] >> 2) & 0x3C) + ((buf[0][start] >> 2) & 0x3)
-            idx2 = ((buf[0][start] << 4) & 0x30) + ((buf[0][start] >> 4) & 0xF)
+            idx1 = ((buf[start+1] >> 2) & 0x3C) + ((buf[start] >> 2) & 0x3)
+            idx2 = ((buf[start] << 4) & 0x30) + ((buf[start] >> 4) & 0xF)
         else:
-            idx1 = ((buf[0][start+1] << 2) & 0x3C) + ((buf[0][start+1] >> 6) & 0x3)
-            idx2 = (buf[0][start+1] & 0x30) + (buf[0][start] & 0xF)
-        return charmap[0][idx1] + charmap[0][idx2]
+            idx1 = ((buf[start+1] << 2) & 0x3C) + ((buf[start+1] >> 6) & 0x3)
+            idx2 = (buf[start+1] & 0x30) + (buf[start] & 0xF)
+        return Decode.CHARMAP[idx1] + Decode.CHARMAP[idx2]
 
     @staticmethod
     def isOFL2(buf, start, startOnHiNibble):
         if startOnHiNibble:
-            result = ((buf[0][start+0] >>  4) == 15 or
-                      (buf[0][start+0] & 0xF) == 15)
+            result = ((buf[start + 0] >>  4) == 15 or
+                      (buf[start + 0] & 0xF) == 15)
         else:
-            result = ((buf[0][start+0] & 0xF) == 15 or
-                      (buf[0][start+1] >>  4) == 15)
+            result = ((buf[start + 0] & 0xF) == 15 or
+                      (buf[start + 1] >>  4) == 15)
         return result
 
     @staticmethod
     def isOFL3(buf, start, startOnHiNibble):
         if startOnHiNibble:
-            result = ((buf[0][start+0] >>  4) == 15 or
-                      (buf[0][start+0] & 0xF) == 15 or
-                      (buf[0][start+1] >>  4) == 15)
+            result = ((buf[start + 0] >>  4) == 15 or
+                      (buf[start + 0] & 0xF) == 15 or
+                      (buf[start + 1] >>  4) == 15)
         else:
-            result = ((buf[0][start+0] & 0xF) == 15 or
-                      (buf[0][start+1] >>  4) == 15 or
-                      (buf[0][start+1] & 0xF) == 15)
+            result = ((buf[start + 0] & 0xF) == 15 or
+                      (buf[start + 1] >>  4) == 15 or
+                      (buf[start + 1] & 0xF) == 15)
         return result
 
     @staticmethod
     def isOFL5(buf, start, startOnHiNibble):
         if startOnHiNibble:
-            result = ((buf[0][start+0] >>  4) == 15 or
-                      (buf[0][start+0] & 0xF) == 15 or
-                      (buf[0][start+1] >>  4) == 15 or
-                      (buf[0][start+1] & 0xF) == 15 or
-                      (buf[0][start+2] >>  4) == 15)
+            result = ((buf[start + 0] >>  4) == 15 or
+                      (buf[start + 0] & 0xF) == 15 or
+                      (buf[start + 1] >>  4) == 15 or
+                      (buf[start + 1] & 0xF) == 15 or
+                      (buf[start + 2] >>  4) == 15)
         else:
-            result = ((buf[0][start+0] & 0xF) == 15 or
-                      (buf[0][start+1] >>  4) == 15 or
-                      (buf[0][start+1] & 0xF) == 15 or
-                      (buf[0][start+2] >>  4) == 15 or
-                      (buf[0][start+2] & 0xF) == 15)
+            result = ((buf[start + 0] & 0xF) == 15 or
+                      (buf[start + 1] >>  4) == 15 or
+                      (buf[start + 1] & 0xF) == 15 or
+                      (buf[start + 2] >>  4) == 15 or
+                      (buf[start + 2] & 0xF) == 15)
         return result
 
     @staticmethod
     def isErr2(buf, start, startOnHiNibble):
         if startOnHiNibble:
-            result = (buf[0][start+0] >>  4) >= 10 \
-                and (buf[0][start+0] >>  4) != 15 \
-                or  (buf[0][start+0] & 0xF) >= 10 \
-                and (buf[0][start+0] & 0xF) != 15
+            result = ((buf[start + 0] >>  4) >= 10 and
+                      (buf[start + 0] >>  4) != 15 or
+                      (buf[start + 0] & 0xF) >= 10 and
+                      (buf[start + 0] & 0xF) != 15)
         else:
-            result = (buf[0][start+0] & 0xF) >= 10 \
-                and (buf[0][start+0] & 0xF) != 15 \
-                or  (buf[0][start+1] >>  4) >= 10 \
-                and (buf[0][start+1] >>  4) != 15
+            result = ((buf[start + 0] & 0xF) >= 10 and
+                      (buf[start + 0] & 0xF) != 15 or
+                      (buf[start + 1] >>  4) >= 10 and
+                      (buf[start + 1] >>  4) != 15)
         return result
         
     @staticmethod
     def isErr3(buf, start, startOnHiNibble):
         if startOnHiNibble:
-            result = (buf[0][start+0] >>  4) >= 10 \
-                and (buf[0][start+0] >>  4) != 15 \
-                or  (buf[0][start+0] & 0xF) >= 10 \
-                and (buf[0][start+0] & 0xF) != 15 \
-                or  (buf[0][start+1] >>  4) >= 10 \
-                and (buf[0][start+1] >>  4) != 15
+            result = ((buf[start + 0] >>  4) >= 10 and
+                      (buf[start + 0] >>  4) != 15 or
+                      (buf[start + 0] & 0xF) >= 10 and
+                      (buf[start + 0] & 0xF) != 15 or
+                      (buf[start + 1] >>  4) >= 10 and
+                      (buf[start + 1] >>  4) != 15)
         else:
-            result = (buf[0][start+0] & 0xF) >= 10 \
-                and (buf[0][start+0] & 0xF) != 15 \
-                or  (buf[0][start+1] >>  4) >= 10 \
-                and (buf[0][start+1] >>  4) != 15 \
-                or  (buf[0][start+1] & 0xF) >= 10 \
-                and (buf[0][start+1] & 0xF) != 15
+            result = ((buf[start + 0] & 0xF) >= 10 and
+                      (buf[start + 0] & 0xF) != 15 or
+                      (buf[start + 1] >>  4) >= 10 and
+                      (buf[start + 1] >>  4) != 15 or
+                      (buf[start + 1] & 0xF) >= 10 and
+                      (buf[start + 1] & 0xF) != 15)
         return result
         
     @staticmethod
     def isErr5(buf, start, startOnHiNibble):
         if startOnHiNibble:
-            result = (buf[0][start+0] >>  4) >= 10 \
-                and (buf[0][start+0] >>  4) != 15 \
-                or  (buf[0][start+0] & 0xF) >= 10 \
-                and (buf[0][start+0] & 0xF) != 15 \
-                or  (buf[0][start+1] >>  4) >= 10 \
-                and (buf[0][start+1] >>  4) != 15 \
-                or  (buf[0][start+1] & 0xF) >= 10 \
-                and (buf[0][start+1] & 0xF) != 15 \
-                or  (buf[0][start+2] >>  4) >= 10 \
-                and (buf[0][start+2] >>  4) != 15
+            result = ((buf[start + 0] >>  4) >= 10 and
+                      (buf[start + 0] >>  4) != 15 or
+                      (buf[start + 0] & 0xF) >= 10 and
+                      (buf[start + 0] & 0xF) != 15 or
+                      (buf[start + 1] >>  4) >= 10 and
+                      (buf[start + 1] >>  4) != 15 or
+                      (buf[start + 1] & 0xF) >= 10 and
+                      (buf[start + 1] & 0xF) != 15 or
+                      (buf[start + 2] >>  4) >= 10 and
+                      (buf[start + 2] >>  4) != 15)
         else:
-            result = (buf[0][start+0] & 0xF) >= 10 \
-                and (buf[0][start+0] & 0xF) != 15 \
-                or  (buf[0][start+1] >>  4) >= 10 \
-                and (buf[0][start+1] >>  4) != 15 \
-                or  (buf[0][start+1] & 0xF) >= 10 \
-                and (buf[0][start+1] & 0xF) != 15 \
-                or  (buf[0][start+2] >>  4) >= 10 \
-                and (buf[0][start+2] >>  4) != 15 \
-                or  (buf[0][start+2] & 0xF) >= 10 \
-                and (buf[0][start+2] & 0xF) != 15
+            result = ((buf[start + 0] & 0xF) >= 10 and
+                      (buf[start + 0] & 0xF) != 15 or
+                      (buf[start + 1] >>  4) >= 10 and
+                      (buf[start + 1] >>  4) != 15 or
+                      (buf[start + 1] & 0xF) >= 10 and
+                      (buf[start + 1] & 0xF) != 15 or
+                      (buf[start + 2] >>  4) >= 10 and
+                      (buf[start + 2] >>  4) != 15 or
+                      (buf[start + 2] & 0xF) >= 10 and
+                      (buf[start + 2] & 0xF) != 15)
         return result
 
     @staticmethod
     def isErr8(buf, start, startOnHiNibble):
         if startOnHiNibble:
-            result = ((buf[0][start+0] >>  4) == 10 and
-                      (buf[0][start+0] & 0xF) == 10 and
-                      (buf[0][start+1] >>  4) == 4  and
-                      (buf[0][start+1] & 0xF) == 10 and
-                      (buf[0][start+2] >>  4) == 10 and
-                      (buf[0][start+2] & 0xF) == 4  and
-                      (buf[0][start+3] >>  4) == 10 and
-                      (buf[0][start+3] & 0xF) == 10)
+            result = ((buf[start + 0] >>  4) == 10 and
+                      (buf[start + 0] & 0xF) == 10 and
+                      (buf[start + 1] >>  4) == 4  and
+                      (buf[start + 1] & 0xF) == 10 and
+                      (buf[start + 2] >>  4) == 10 and
+                      (buf[start + 2] & 0xF) == 4  and
+                      (buf[start + 3] >>  4) == 10 and
+                      (buf[start + 3] & 0xF) == 10)
         else:
-            result = ((buf[0][start+0] & 0xF) == 10 and
-                      (buf[0][start+1] >>  4) == 10 and
-                      (buf[0][start+1] & 0xF) == 4  and
-                      (buf[0][start+2] >>  4) == 10 and
-                      (buf[0][start+2] & 0xF) == 10 and
-                      (buf[0][start+3] >>  4) == 4  and
-                      (buf[0][start+3] & 0xF) == 10 and
-                      (buf[0][start+4] >>  4) == 10)
+            result = ((buf[start + 0] & 0xF) == 10 and
+                      (buf[start + 1] >>  4) == 10 and
+                      (buf[start + 1] & 0xF) == 4  and
+                      (buf[start + 2] >>  4) == 10 and
+                      (buf[start + 2] & 0xF) == 10 and
+                      (buf[start + 3] >>  4) == 4  and
+                      (buf[start + 3] & 0xF) == 10 and
+                      (buf[start + 4] >>  4) == 10)
         return result
-
-    @staticmethod
-    def reverseByteOrder(buf, start, count):
-        nbuf = buf[0]
-        for i in xrange(0, count >> 1):
-            tmp = nbuf[start + i]
-            nbuf[start + i] = nbuf[start + count - i - 1]
-            nbuf[start + count - i - 1] = tmp
-        buf[0] = nbuf
 
     @staticmethod
     def toInt_1(buf, start, startOnHiNibble):
         """read 1 nibble"""
         if startOnHiNibble:
-            rawpre  = (buf[0][start+0] >>  4)
+            rawpre = (buf[start] >> 4)
         else:
-            rawpre  = (buf[0][start+0] & 0xF)
+            rawpre = (buf[start] & 0xF)
         return rawpre
 
     @staticmethod
     def toInt_2(buf, start, startOnHiNibble):
         """read 2 nibbles"""
         if startOnHiNibble:
-            rawpre  = (buf[0][start+0] >>  4) * 10 \
-                + (buf[0][start+0] & 0xF) * 1
+            rawpre = (buf[start] >> 4) * 10 + (buf[start+0] & 0xF) * 1
         else:
-            rawpre  = (buf[0][start+0] & 0xF) * 10 \
-                + (buf[0][start+1] >>  4) * 1
+            rawpre = (buf[start] & 0xF) * 10 + (buf[start+1] >> 4) * 1
         return rawpre
 
     @staticmethod
@@ -1956,8 +2028,7 @@ class Decode(object):
         """read 8 nibbles, presentation as DateTime"""
         result = None
         if Decode.isErr8(buf, start+0, startOnHiNibble):
-            logerr('ToDateTime: %s: no valid date' %
-                   label)
+            logerr('ToDateTime: %s: no valid date' % label)
         else:
             if startOnHiNibble:
                 year  = Decode.toInt_2(buf, start+0, 1) + 2000
@@ -1998,9 +2069,9 @@ class Decode(object):
     @staticmethod
     def toHumidity_2_0(buf, start, startOnHiNibble):
         """read 2 nibbles, presentation with 0 decimal"""
-        if Decode.isErr2(buf, start+0, startOnHiNibble):
+        if Decode.isErr2(buf, start, startOnHiNibble):
             result = SensorLimits.humidity_NP
-        elif Decode.isOFL2(buf, start+0, startOnHiNibble):
+        elif Decode.isOFL2(buf, start, startOnHiNibble):
             result = SensorLimits.humidity_OFL
         else:
             result = Decode.toInt_2(buf, start, startOnHiNibble)
@@ -2009,19 +2080,19 @@ class Decode(object):
     @staticmethod
     def toTemperature_3_1(buf, start, startOnHiNibble):
         """read 3 nibbles, presentation with 1 decimal; units of degree C"""
-        if Decode.isErr3(buf, start+0, startOnHiNibble):
+        if Decode.isErr3(buf, start, startOnHiNibble):
             result = SensorLimits.temperature_NP
-        elif Decode.isOFL3(buf, start+0, startOnHiNibble):
+        elif Decode.isOFL3(buf, start, startOnHiNibble):
             result = SensorLimits.temperature_OFL
         else:
             if startOnHiNibble:
-                rawtemp   =  (buf[0][start+0] >>  4) *  10 \
-                    +  (buf[0][start+0] & 0xF) *  1   \
-                    +  (buf[0][start+1] >>  4) *  0.1
+                rawtemp = (buf[start] >> 4) * 10 \
+                    + (buf[start + 0] & 0xF) * 1 \
+                    + (buf[start + 1] >> 4) * 0.1
             else:
-                rawtemp   =  (buf[0][start+0] & 0xF) *  10 \
-                    +  (buf[0][start+1] >>  4) *  1   \
-                    +  (buf[0][start+1] & 0xF) *  0.1
+                rawtemp = (buf[start] & 0xF) * 10 \
+                    + (buf[start + 1] >> 4) * 1 \
+                    + (buf[start + 1] & 0xF) * 0.1
             result = rawtemp - SensorLimits.temperature_offset
         return result
 
@@ -2057,7 +2128,7 @@ class CurrentData(object):
     def read(self, buf):
         values = dict()
         values['timestamp'] = int(time.time() + 0.5)
-        values['SignalQuality'] = buf[0][4] & 0x7F
+        values['SignalQuality'] = buf[4] & 0x7F
         for x in range(0, 9):
             lbl = 'Temp%s' % x
             values[lbl + 'Max'] = Decode.toTemperature_3_1(buf, self.BUFMAP[x][0], 0)
@@ -2071,31 +2142,29 @@ class CurrentData(object):
             values[lbl] = Decode.toHumidity_2_0(buf, self.BUFMAP[x][7], 1)
             values[lbl + 'MaxDT'] = None if values[lbl + 'Max'] == SensorLimits.humidity_NP or values[lbl + 'Max'] == SensorLimits.humidity_OFL else Decode.toDateTime8(buf, self.BUFMAP[x][8], 1, lbl + 'Max')
             values[lbl + 'MinDT'] = None if values[lbl + 'Min'] == SensorLimits.humidity_NP or values[lbl + 'Min'] == SensorLimits.humidity_OFL else Decode.toDateTime8(buf, self.BUFMAP[x][9], 1, lbl + 'Min')
-        values['Data'] = [0]
-        values['Data'][0] = [0]*12
-        values['Data'][0] = buf[0][223:223+12]
+        values['AlarmData'] = buf[223:223+12]
         self.values = values
 
     def toLog(self):
-        logdbg("timestamp= %s" % self.values['timestamp'])
-        logdbg("SignalQuality= %3.0f " % self.values['SignalQuality'])
+        logdbg("timestamp: %s" % self.values['timestamp'])
+        logdbg("SignalQuality: %3.0f " % self.values['SignalQuality'])
         for x in range(0, 9):
             if self.values['Temp%d' % x] != SensorLimits.temperature_NP:
-                logdbg("Temp%d =     %5.1f   Min = %5.1f (%s)   Max = %5.1f (%s)" %
+                logdbg("Temp%d:     %5.1f   Min: %5.1f (%s)   Max: %5.1f (%s)" %
                        (x, self.values['Temp%s' % x],
                         self.values['Temp%sMin' % x],
                         self.values['Temp%sMinDT' % x],
                         self.values['Temp%sMax' % x],
                         self.values['Temp%sMaxDT' % x]))
             if self.values['Humidity%d' % x] != SensorLimits.humidity_NP:
-                logdbg("Humidity%d = %5.0f   Min = %5.0f (%s)   Max = %5.0f (%s)" %
+                logdbg("Humidity%d: %5.0f   Min: %5.0f (%s)   Max: %5.0f (%s)" %
                        (x, self.values['Humidity%s' % x],
                         self.values['Humidity%sMin' % x],
                         self.values['Humidity%sMinDT' % x],
                         self.values['Humidity%sMax' % x],
                         self.values['Humidity%sMaxDT' % x]))
-        byte_str = ' '.join(['%02x' % x for x in self.values['Data'][0]])
-        logdbg('Data= %s' % byte_str)
+        byte_str = ' '.join(['%02x' % x for x in self.values['AlarmData']])
+        logdbg('AlarmData: %s' % byte_str)
 
 
 class StationConfig(object):
@@ -2107,14 +2176,13 @@ class StationConfig(object):
               4: (58, 66, 74, 82, 90, 98,106,114)}
 
     def __init__(self):
-        self.values = {}
+        self.values = dict()
         self.values['InBufCS'] = 0  # checksum of received config
         self.values['OutBufCS'] = 0  # calculated checksum from outbuf config
         self.values['Settings'] = 0
         self.values['TimeZone'] = 0
         self.values['HistoryInterval'] = 0
-        self.values['AlarmData'] = [0]
-        self.values['AlarmData'][0] = [0]*5
+        self.values['AlarmSet'] = [0] * 5
         self.values['ResetHiLo'] = 0
         for i in range(0, 9):
             self.values['Temp%dMax' % i] = SensorLimits.temperature_NP
@@ -2122,8 +2190,7 @@ class StationConfig(object):
             self.values['Humidity%dMax' % i] = SensorLimits.humidity_NP
             self.values['Humidity%dMin' % i] = SensorLimits.humidity_NP
         for i in range(1, 9):
-            self.values['Description%d' % i] = [0]
-            self.values['Description%d' % i][0] = [0]*8
+            self.values['Description%d' % i] = [0] * 8
             self.values['SensorText%d' % i] = ''
     
     def getOutBufCS(self):
@@ -2131,33 +2198,52 @@ class StationConfig(object):
              
     def getInBufCS(self):
         return self.values['InBufCS']
+
+    def setAlarmClockOffset(self):
+        # set Humidity Lo alarm of station when stations clock is too way off
+        self.values['Humidity0Min'] = 99
+        self.values['AlarmSet'][4] = (self.values['AlarmSet'][4] & 0xfd) + 0x2
+
+    def resetAlarmClockOffset(self):
+        # reset Humidity Lo alarm of station when stations clock is within margins
+        self.values['Humidity0Min'] = 20
+        self.values['AlarmSet'][4] = (self.values['AlarmSet'][4] & 0xfd)
+
+    @staticmethod
+    def reverseByteOrder(buf, start, count):
+        """reverse count bytes in buf beginning at start"""
+        for i in xrange(0, count >> 1):
+            tmp = buf[start + i]
+            buf[start + i] = buf[start + count - i - 1]
+            buf[start + count - i - 1] = tmp
     
     @staticmethod
     def parse_0(number, buf, start, startOnHiNibble, numbytes):
-        """Parse 3-digit number with 0 decimals"""
+        """Parse 3-digit number with 0 decimals, insert into buf"""
         num = int(number)
-        nbuf = [0]*3
+        nbuf = [0] * 3
         for i in xrange(3-numbytes, 3):
             nbuf[i] = num % 10
             num //= 10
         if startOnHiNibble:
-            buf[0][0+start] = nbuf[2]*16 + nbuf[1]
+            buf[0+start] = nbuf[2]*16 + nbuf[1]
             if numbytes > 2:
-                buf[0][1+start] = nbuf[0]*16 + (buf[0][2+start] & 0x0F)
+                buf[1+start] = nbuf[0]*16 + (buf[2+start] & 0x0F)
         else:
-            buf[0][0+start] = (buf[0][0+start] & 0xF0) + nbuf[2]
+            buf[0+start] = (buf[0+start] & 0xF0) + nbuf[2]
             if numbytes > 2:
-                buf[0][1+start] = nbuf[1]*16 + nbuf[0]
+                buf[1+start] = nbuf[1]*16 + nbuf[0]
 
-    def parse_1(self, number, buf, start, startOnHiNibble, numbytes):
-        """Parse 3 digit number with 1 decimal"""
-        self.parse_0(number*10.0, buf, start, startOnHiNibble, numbytes)
+    @staticmethod
+    def parse_1(number, buf, start, startOnHiNibble, numbytes):
+        """Parse 3 digit number with 1 decimal, insert into buf"""
+        StationConfig.parse_0(number*10.0, buf, start, startOnHiNibble, numbytes)
 
     def read(self, buf):
         values = dict()
-        values['Settings'] = buf[0][5]
-        values['TimeZone'] = buf[0][6]
-        values['HistoryInterval'] = buf[0][7] & 0xF
+        values['Settings'] = buf[5]
+        values['TimeZone'] = buf[6]
+        values['HistoryInterval'] = buf[7] & 0xF
         for x in range(0, 9):
             lbl = 'Temp%s' % x
             values[lbl + 'Max'] = Decode.toTemperature_3_1(buf, self.BUFMAP[0][x], 1)
@@ -2165,12 +2251,9 @@ class StationConfig(object):
             lbl = 'Humidity%s' % x
             values[lbl + 'Max'] = Decode.toHumidity_2_0(buf, self.BUFMAP[2][x], 1)
             values[lbl + 'Min'] = Decode.toHumidity_2_0(buf, self.BUFMAP[3][x], 1)
-        values['AlarmData'] = [0]
-        values['AlarmData'][0] = [0]*5
-        values['AlarmData'][0] = buf[0][53:53+5]
+        values['AlarmSet'] = buf[53:53+5]
         for x in range(1, 9):
-            values['Description%s' % x] = [0]
-            values['Description%s' % x][0] = buf[0][self.BUFMAP[4][x-1]:self.BUFMAP[4][x-1]+8]
+            values['Description%s' % x] = buf[self.BUFMAP[4][x-1]:self.BUFMAP[4][x-1]+8]
             txt1 = Decode.toCharacters3_2(buf, self.BUFMAP[4][x-1]+6, 0)
             txt2 = Decode.toCharacters3_2(buf, self.BUFMAP[4][x-1]+5, 1)
             txt3 = Decode.toCharacters3_2(buf, self.BUFMAP[4][x-1]+3, 0)
@@ -2181,62 +2264,62 @@ class StationConfig(object):
                 values['SensorText%s' % x] = '(No sensor)'
             else:
                 values['SensorText%s' % x] = sensor_txt
-        values['ResetHiLo'] = buf[0][122]
-        values['InBufCS'] = (buf[0][123] << 8) | buf[0][124]
+        values['ResetHiLo'] = buf[122]
+        values['InBufCS'] = (buf[123] << 8) | buf[124]
         # checksum is not calculated for ResetHiLo (Output only)
         values['OutBufCS'] = calc_checksum(buf, 5, end=122) + 7
         self.values = values
 
-    def testConfigChanged(self, buf):
-        nbuf = [0]
-        nbuf[0] = buf[0]
+    # FIXME: this has side effects that should be removed
+    # FIXME: self.values['HistoryInterval']
+    # FIXME: self.values['OutBufCS']
+    def testConfigChanged(self):
+        """see if configuration has changed"""
+        newbuf = [0] * 125
         # Set historyInterval to 5 minutes if > 5 minutes (default: 15 minutes)
         if self.values['HistoryInterval'] > HI_05MIN:
-            logdbg('testConfigChanged: Change HistoryInterval to 5 minutes')
+            logdbg('change HistoryInterval to 5 minutes')
             self.values['HistoryInterval'] = HI_05MIN
 
-        nbuf[0][5] = self.values['Settings']
-        nbuf[0][6] = self.values['TimeZone']
-        nbuf[0][7] = self.values['HistoryInterval']
+        newbuf[5] = self.values['Settings']
+        newbuf[6] = self.values['TimeZone']
+        newbuf[7] = self.values['HistoryInterval']
         for x in range(0, 9):
             lbl = 'Temp%s' % x
-            self.parse_1(self.values[lbl + 'Max'] + SensorLimits.temperature_offset, nbuf, self.BUFMAP[0][x], 1, 3)
-            self.parse_1(self.values[lbl + 'Min'] + SensorLimits.temperature_offset, nbuf, self.BUFMAP[1][x], 0, 3)
-            Decode.reverseByteOrder(nbuf, self.BUFMAP[0][x], 3)  #Temp
+            self.parse_1(self.values[lbl + 'Max'] + SensorLimits.temperature_offset, newbuf, self.BUFMAP[0][x], 1, 3)
+            self.parse_1(self.values[lbl + 'Min'] + SensorLimits.temperature_offset, newbuf, self.BUFMAP[1][x], 0, 3)
+            self.reverseByteOrder(newbuf, self.BUFMAP[0][x], 3)  #Temp
             lbl = 'Humidity%s' % x
-            self.parse_0(self.values[lbl + 'Max'], nbuf, self.BUFMAP[2][x], 1, 2)
-            self.parse_0(self.values[lbl + 'Min'], nbuf, self.BUFMAP[3][x], 1, 2)
-            Decode.reverseByteOrder(nbuf, self.BUFMAP[2][x], 2)  #Humidity
-        # insert reverse self.values['AlarmData'] into nbuf
-        rev = [0]
-        rev[0] = self.values['AlarmData'][0][::-1]
+            self.parse_0(self.values[lbl + 'Max'], newbuf, self.BUFMAP[2][x], 1, 2)
+            self.parse_0(self.values[lbl + 'Min'], newbuf, self.BUFMAP[3][x], 1, 2)
+            self.reverseByteOrder(newbuf, self.BUFMAP[2][x], 2)  #Humidity
+        # insert reverse self.values['AlarmSet'] into newbuf
+        rev = self.values['AlarmSet'][::-1]
         for y in range(0, 5):
-            nbuf[0][53+y] = rev[0][y]
-        # insert reverse self.values['Description%d'] into nbuf
+            newbuf[53+y] = rev[y]
+        # insert reverse self.values['Description%d'] into newbuf
         for x in range(1, 9):
-            rev = [0]
-            rev[0] = self.values['Description%d' % x][0][::-1]
+            rev = self.values['Description%d' % x][::-1]
             for y in range(0, 8):
-                nbuf[0][self.BUFMAP[4][x-1]+y] = rev[0][y]
-        nbuf[0][122] = self.values['ResetHiLo']
+                newbuf[self.BUFMAP[4][x-1]+y] = rev[y]
+        newbuf[122] = self.values['ResetHiLo']
         # checksum is not calculated for ResetHiLo (Output only)
-        self.values['OutBufCS'] = calc_checksum(nbuf, 5, end=122) + 7
-        nbuf[0][123] = (self.values['OutBufCS'] >> 8) & 0xFF
-        nbuf[0][124] = (self.values['OutBufCS'] >> 0) & 0xFF
-        buf[0] = nbuf[0]   
+        self.values['OutBufCS'] = calc_checksum(newbuf, 5, end=122) + 7
+        newbuf[123] = (self.values['OutBufCS'] >> 8) & 0xFF
+        newbuf[124] = (self.values['OutBufCS'] >> 0) & 0xFF
         if self.values['OutBufCS'] == self.values['InBufCS']:
             if DEBUG_CONFIG_DATA > 2:
-                logdbg('testConfigChanged: checksum not changed: OutBufCS=%04x' % self.values['OutBufCS'])
+                logdbg('checksum not changed: OutBufCS=%04x' %
+                       self.values['OutBufCS'])
             changed = 0
         else:
             if DEBUG_CONFIG_DATA > 0:
-                logdbg('testConfigChanged: checksum changed: OutBufCS=%04x InBufCS=%04x ' % 
-                       (self.values['OutBufCS'], 
-                        self.values['InBufCS']))
+                logdbg('checksum changed: OutBufCS=%04x InBufCS=%04x ' % 
+                       (self.values['OutBufCS'], self.values['InBufCS']))
             if self.values['InBufCS'] != 0 and DEBUG_CONFIG_DATA > 1:
                 self.toLog()
             changed = 1
-        return changed
+        return changed, newbuf
 
     def toLog(self):
         contrast = (int(self.values['Settings']) >> 4) & 0x0F
@@ -2246,25 +2329,25 @@ class StationConfig(object):
         temp_form = 'C' if int(self.values['Settings']) & 0x1 == 0 else 'F'
         time_zone = self.values['TimeZone'] if int(self.values['TimeZone']) <= 12 else int(self.values['TimeZone'])-256
         history_interval = history_intervals.get(self.values['HistoryInterval'])
-        logdbg('OutBufCS = %04x' % self.values['OutBufCS'])
-        logdbg('InBufCS =  %04x' % self.values['InBufCS'])
-        logdbg('Settings = %02x: contrast=%s, alert=%s, DCF reception=%s, time format=%s, temp format=%s' %
+        logdbg('OutBufCS: %04x' % self.values['OutBufCS'])
+        logdbg('InBufCS:  %04x' % self.values['InBufCS'])
+        logdbg('Settings: %02x: contrast: %s, alert: %s, DCF reception: %s, time format: %s, temp format: %s' %
                (self.values['Settings'], contrast, alert, dcf_recep, time_form, temp_form))
-        logdbg('TimeZone difference with Frankfurt (CET) = %02x (tz: %s hour)' % (self.values['TimeZone'], time_zone))
-        logdbg('HistoryInterval = %02x, period = %s minute(s)' % (self.values['HistoryInterval'], history_interval))
-        byte_str = ' '.join(['%02x' % x for x in self.values['AlarmData'][0]])
-        logdbg('AlarmData =    %s' % byte_str)
-        logdbg('ResetHiLo =    %02x' % self.values['ResetHiLo'])
+        logdbg('TimeZone difference with Frankfurt (CET): %02x (tz: %s hour)' % (self.values['TimeZone'], time_zone))
+        logdbg('HistoryInterval: %02x, period: %s minute(s)' % (self.values['HistoryInterval'], history_interval))
+        byte_str = ' '.join(['%02x' % x for x in self.values['AlarmSet']])
+        logdbg('AlarmSet:     %s' % byte_str)
+        logdbg('ResetHiLo:    %02x' % self.values['ResetHiLo'])
         for x in range(0, 9):
-            logdbg('Sensor%d =      %3.1f - %3.1f, %3.0f - %3.0f' %
+            logdbg('Sensor%d:      %3.1f - %3.1f, %3.0f - %3.0f' %
                    (x,
                     self.values['Temp%dMin' % x], 
                     self.values['Temp%dMax' % x],
                     self.values['Humidity%dMin' % x],
                     self.values['Humidity%dMax' % x]))
         for x in range(1, 9):
-            byte_str = ' '.join(['%02x' % y for y in self.values['Description%d' % x][0]])
-            logdbg('Description%d = %s; SensorText = %s' % (x, byte_str, self.values['SensorText%s' % x]))
+            byte_str = ' '.join(['%02x' % y for y in self.values['Description%d' % x]])
+            logdbg('Description%d: %s; SensorText: %s' % (x, byte_str, self.values['SensorText%s' % x]))
 
     def asDict(self):
         return {'checksum_in': self.values['InBufCS'],
@@ -2273,7 +2356,7 @@ class StationConfig(object):
                 'history_interval': self.values['HistoryInterval']}
 
 
-class CHistoryData(object):
+class HistoryData(object):
 
     BUFMAP = {1: (176,
                   (174,173,171,170,168,167,165,164,162),
@@ -2305,21 +2388,24 @@ class CHistoryData(object):
     def read(self, buf):
         values = {}
         for i in range(1, 7):
-            values['Pos%dDT' % i] = Decode.toDateTime10(buf, self.BUFMAP[i][0], 1, 'HistoryData%d' % i)
+            values['Pos%dDT' % i] = Decode.toDateTime10(
+                buf, self.BUFMAP[i][0], 1, 'HistoryData%d' % i)
             for j in range(0, 9):
-                values['Pos%dTemp%d' % (i, j)] = Decode.toTemperature_3_1(buf, self.BUFMAP[i][1][j], j%2)
-                values['Pos%dHumidity%d' % (i, j)] = Decode.toHumidity_2_0(buf, self.BUFMAP[i][2][j], 1)
+                values['Pos%dTemp%d' % (i, j)] = Decode.toTemperature_3_1(
+                    buf, self.BUFMAP[i][1][j], j%2)
+                values['Pos%dHumidity%d' % (i, j)] = Decode.toHumidity_2_0(
+                    buf, self.BUFMAP[i][2][j], 1)
         self.values = values
 
     def toLog(self):
         last_ts = None
         for i in range(1, 7):
             if self.values['Pos%dDT' % i] != last_ts:
-                logdbg("Pos%dDT %s, Pos%dTemp0 = %3.1f, Pos%sHumidity0 = %3.1f" %
+                logdbg("Pos%dDT %s, Pos%dTemp0: %3.1f, Pos%sHumidity0: %3.1f" %
                        (i, self.values['Pos%dDT' % i],
                         i, self.values['Pos%dTemp0' % i],
                         i, self.values['Pos%dHumidity0' % i]))
-                logdbg("Pos%dTemp 1-8     = %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f" % 
+                logdbg("Pos%dTemp 1-8:      %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f, %3.1f" %
                        (i,
                         self.values['Pos%dTemp1' % i],
                         self.values['Pos%dTemp2' % i],
@@ -2329,7 +2415,7 @@ class CHistoryData(object):
                         self.values['Pos%dTemp6' % i],
                         self.values['Pos%dTemp7' % i],
                         self.values['Pos%dTemp8' % i]))
-                logdbg("Pos%dHumidity 1-8 = %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f" % 
+                logdbg("Pos%dHumidity 1-8: %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f, %3.0f" %
                        (i,
                         self.values['Pos%dHumidity1' % i],
                         self.values['Pos%dHumidity2' % i],
@@ -2476,7 +2562,7 @@ class Transceiver(object):
         # be sure kernel does not claim the interface
         try:
             handle.detachKernelDriver(interface)
-        except Exception:
+        except usb.USBError:
             pass
 
         # attempt to claim the interface
@@ -2538,21 +2624,19 @@ class Transceiver(object):
                              timeout=self.timeout)
 
     def getState(self):
-        buf = self.devh.controlMsg(requestType=usb.TYPE_CLASS |
-                                   usb.RECIP_INTERFACE | usb.ENDPOINT_IN,
-                                   request=usb.REQ_CLEAR_FEATURE,
-                                   buffer=0x0a,
-                                   value=0x00003de,
-                                   index=0x0000000,
-                                   timeout=self.timeout)
+        buf = self.devh.controlMsg(
+            requestType=usb.TYPE_CLASS | usb.RECIP_INTERFACE | usb.ENDPOINT_IN,
+            request=usb.REQ_CLEAR_FEATURE,
+            buffer=0x0a,
+            value=0x00003de,
+            index=0x0000000,
+            timeout=self.timeout)
         if DEBUG_COMM > 1:
             self.dump('getState', buf, fmt=DEBUG_DUMP_FORMAT)
         return buf[1:3]
 
-    def readConfigFlash(self, addr, nbytes, data):
-        if nbytes > 512:
-            raise Exception('bad number of bytes')
-        new_data= [0] * 0x15
+    def readConfigFlash(self, addr, nbytes):
+        new_data = [0] * 0x15
         while nbytes:
             buf= [0xcc] * 0x0f  # 0x15
             buf[0] = 0xdd
@@ -2567,18 +2651,17 @@ class Transceiver(object):
                                  value=0x00003dd,
                                  index=0x0000000,
                                  timeout=self.timeout)
-            buf = self.devh.controlMsg(requestType=usb.TYPE_CLASS |
-                                       usb.RECIP_INTERFACE |
-                                       usb.ENDPOINT_IN,
-                                       request=usb.REQ_CLEAR_FEATURE,
-                                       buffer=0x15,
-                                       value=0x00003dc,
-                                       index=0x0000000,
-                                       timeout=self.timeout)
-            new_data= [0] * 0x15
+            buf = self.devh.controlMsg(
+                usb.TYPE_CLASS | usb.RECIP_INTERFACE | usb.ENDPOINT_IN,
+                request=usb.REQ_CLEAR_FEATURE,
+                buffer=0x15,
+                value=0x00003dc,
+                index=0x0000000,
+                timeout=self.timeout)
+            new_data = [0] * 0x15
             if nbytes < 16:
                 for i in xrange(0, nbytes):
-                    new_data[i] = buf[i+4]
+                    new_data[i] = buf[i + 4]
                 nbytes = 0
             else:
                 for i in xrange(0, 16):
@@ -2587,10 +2670,10 @@ class Transceiver(object):
                 addr += 16
             if DEBUG_COMM > 1:
                 self.dump('readCfgFlash<', buf, fmt=DEBUG_DUMP_FORMAT)
-        data[0] = new_data # FIXME: new_data might be unset
+        return new_data
 
     def setState(self, state):
-        buf = [0]*0x15
+        buf = [0] * 0x15
         buf[0] = 0xd7
         buf[1] = state
         if DEBUG_COMM > 1:
@@ -2602,8 +2685,8 @@ class Transceiver(object):
                              index=0x0000000,
                              timeout=self.timeout)
 
-    def setFrame(self, data, nbytes):
-        buf = [0]*0x111
+    def setFrame(self, nbytes, data):
+        buf = [0] * 0x111
         buf[0] = 0xd5
         buf[1] = nbytes >> 8
         buf[2] = nbytes
@@ -2620,28 +2703,26 @@ class Transceiver(object):
                              index=0x0000000,
                              timeout=self.timeout)
 
-    def getFrame(self, data, nbytes):
-        buf = self.devh.controlMsg(requestType=usb.TYPE_CLASS |
-                                   usb.RECIP_INTERFACE |
-                                   usb.ENDPOINT_IN,
-                                   request=usb.REQ_CLEAR_FEATURE,
-                                   buffer=0x111,
-                                   value=0x00003d6,
-                                   index=0x0000000,
-                                   timeout=self.timeout)
-        new_data= [0] * 0x131
-        new_nbytes = (buf[1] << 8 | buf[2]) & 0x1ff
-        for i in xrange(0, new_nbytes):
-            new_data[i] = buf[i+3]
+    def getFrame(self):
+        buf = self.devh.controlMsg(
+            usb.TYPE_CLASS | usb.RECIP_INTERFACE | usb.ENDPOINT_IN,
+            request=usb.REQ_CLEAR_FEATURE,
+            buffer=0x111,
+            value=0x00003d6,
+            index=0x0000000,
+            timeout=self.timeout)
+        data= [0] * 0x131
+        nbytes = (buf[1] << 8 | buf[2]) & 0x1ff
+        for i in xrange(0, nbytes):
+            data[i] = buf[i+3]
         if DEBUG_COMM == 1:
             self.dump('getFrame', buf, 'short')
         elif DEBUG_COMM > 1:
             self.dump('getFrame', buf, fmt=DEBUG_DUMP_FORMAT)
-        data[0] = new_data
-        nbytes[0] = new_nbytes
+        return nbytes, data
 
     def writeReg(self, regAddr, data):
-        buf = [0]*0x05
+        buf = [0] * 0x05
         buf[0] = 0xf0
         buf[1] = regAddr & 0x7F
         buf[2] = 0x01
@@ -2657,7 +2738,7 @@ class Transceiver(object):
                              timeout=self.timeout)
 
     def execute(self, command):
-        buf = [0]*0x0f  #*0x15
+        buf = [0] * 0x0f  # 0x15
         buf[0] = 0xd9
         buf[1] = command
         if DEBUG_COMM > 1:
@@ -2670,7 +2751,7 @@ class Transceiver(object):
                              timeout=self.timeout)
 
     def setPreamblePattern(self, pattern):
-        buf = [0]*0x15
+        buf = [0] * 0x15
         buf[0] = 0xd8
         buf[1] = pattern
         if DEBUG_COMM > 1:
@@ -2723,7 +2804,7 @@ class Transceiver(object):
     def readCfg(handle, addr, nbytes, timeout=1000):
         new_data= [0] * 0x15
         while nbytes:
-            buf= [0xcc] * 0x0f  # 0x15
+            buf = [0xcc] * 0x0f  # 0x15
             buf[0] = 0xdd
             buf[1] = 0x0a
             buf[2] = (addr >> 8) & 0xFF
@@ -2734,13 +2815,13 @@ class Transceiver(object):
                               value=0x00003dd,
                               index=0x0000000,
                               timeout=timeout)
-            buf = handle.controlMsg(requestType=usb.TYPE_CLASS |
-                                    usb.RECIP_INTERFACE | usb.ENDPOINT_IN,
-                                    request=usb.REQ_CLEAR_FEATURE,
-                                    buffer=0x15,
-                                    value=0x00003dc,
-                                    index=0x0000000,
-                                    timeout=timeout)
+            buf = handle.controlMsg(
+                usb.TYPE_CLASS | usb.RECIP_INTERFACE | usb.ENDPOINT_IN,
+                request=usb.REQ_CLEAR_FEATURE,
+                buffer=0x15,
+                value=0x00003dc,
+                index=0x0000000,
+                timeout=timeout)
             new_data = [0] * 0x15
             if nbytes < 16:
                 for i in xrange(0, nbytes):
@@ -2824,9 +2905,10 @@ class AX5051RegisterNames:
 
 class CommunicationService(object):
 
-    def __init__(self):
+    def __init__(self, first_sleep):
         logdbg('CommunicationService.init')
 
+        self.first_sleep = first_sleep
         self.reg_names = dict()
         self.hid = Transceiver()
         self.transceiver_settings = TransceiverSettings()
@@ -2847,92 +2929,80 @@ class CommunicationService(object):
 
         self.command = None
         self.history_cache = HistoryCache()
-        # do not set time when offset to whole hour is <= _a3_offset
-        self._a3_offset = 3
         self.ts_last_rec = 0
         self.records_appended = 0
         self.records_skipped = 0
 
-    def buildFirstConfigFrame(self, buf, cs):
+    def buildFirstConfigFrame(self, cs):
         logdbg('buildFirstConfigFrame: cs=%04x' % cs)
-        newbuf = [0]
-        newbuf[0] = [0]*11
-        comInt = self.comm_mode_interval
+        newlen = 11
+        newbuf = [0] * newlen
         historyAddress = 0x010700
-        newbuf[0][0] = 0xF0
-        newbuf[0][1] = 0xF0
-        newbuf[0][2] = 0xFF
-        newbuf[0][3] = ACTION_GET_CONFIG
-        newbuf[0][4] = 0xFF
-        newbuf[0][5] = 0xFF
-        newbuf[0][6] = 0x80  ### not known what this means
-        newbuf[0][7] = comInt & 0xFF
-        newbuf[0][8] = (historyAddress >> 16) & 0xFF
-        newbuf[0][9] = (historyAddress >> 8) & 0xFF
-        newbuf[0][10] = (historyAddress >> 0) & 0xFF
-        buf[0] = newbuf[0]
-        length = 11
-        return length
+        newbuf[0] = 0xF0
+        newbuf[1] = 0xF0
+        newbuf[2] = 0xFF
+        newbuf[3] = ACTION_GET_CONFIG
+        newbuf[4] = 0xFF
+        newbuf[5] = 0xFF
+        newbuf[6] = 0x80 # TODO: not known what this means
+        newbuf[7] = self.comm_mode_interval & 0xFF
+        newbuf[8] = (historyAddress >> 16) & 0xFF
+        newbuf[9] = (historyAddress >> 8) & 0xFF
+        newbuf[10] = (historyAddress >> 0) & 0xFF
+        return newlen, newbuf
 
     def buildConfigFrame(self, buf):
         logdbg("buildConfigFrame")
-        newbuf = [0]
-        newbuf[0] = [0] * 125
-        cfgbuf = [0]
-        cfgbuf[0] = [0] * 125
-        changed = self.station_config.testConfigChanged(cfgbuf)
+        changed, cfgbuf = self.station_config.testConfigChanged()
         if changed:
-            newbuf[0][0] = buf[0][0]
-            newbuf[0][1] = buf[0][1]
-            newbuf[0][2] = buf[0][2]
-            newbuf[0][3] = ACTION_SEND_CONFIG # 0x20 # change this value if we won't store config
-            newbuf[0][4] = buf[0][4]
-            for i in xrange(5, 125):
-                newbuf[0][i] = cfgbuf[0][i]
-            buf[0] = newbuf[0]
-            length = 125  # 0x7D
+            newlen = 125  # 0x7D
+            newbuf = [0] * newlen
+            newbuf[0] = buf[0]
+            newbuf[1] = buf[1]
+            newbuf[2] = LOGGER_1
+            newbuf[3] = ACTION_SEND_CONFIG # 0x20 # change this value if we won't store config
+            newbuf[4] = buf[4]
+            for i in xrange(5, newlen):
+                newbuf[i] = cfgbuf[i]
             if DEBUG_CONFIG_DATA > 2:
-                self.hid.dump('OutBuf', buf[0], fmt='long', length=0x7D)
+                self.hid.dump('OutBuf', newbuf, fmt='long', length=newlen)
         else:  # current config not up to date; do not write yet
-            length = 0
-        return length
+            newlen = 0
+            newbuf = [0]
+        return newlen, newbuf
 
     @staticmethod
     def buildTimeFrame(buf, cs):
         logdbg("buildTimeFrame: cs=%04x" % cs)
 
-        now = time.time()
-        tm = time.localtime(now)
+        tm = time.localtime()
 
-        newbuf = [0]
+        # d5 00 0d 01 07 00 60 1a b1 25 58 21 04 03 41 01 
+        #           0  1  2  3  4  5  6  7  8  9 10 11 12
+        newlen = 13
+        newbuf = [0] * newlen
         newbuf[0] = buf[0]
-        #00000000: d5 00 0d 01 07 00 60 1a b1 25 58 21 04 03 41 01 
-        #                    0  1  2  3  4  5  6  7  8  9 10 11 12
-        newbuf[0][3] = ACTION_SEND_TIME  # 0x60
-        newbuf[0][4] = (cs >> 8) & 0xFF
-        newbuf[0][5] = (cs >> 0) & 0xFF
-        newbuf[0][6] = (tm[5] % 10) + 0x10 * (tm[5] // 10)  #sec
-        newbuf[0][7] = (tm[4] % 10) + 0x10 * (tm[4] // 10)  #min
-        newbuf[0][8] = (tm[3] % 10) + 0x10 * (tm[3] // 10)  #hour
+        newbuf[1] = buf[1]
+        newbuf[2] = LOGGER_1
+        newbuf[3] = ACTION_SEND_TIME  # 0x60
+        newbuf[4] = (cs >> 8) & 0xFF
+        newbuf[5] = (cs >> 0) & 0xFF
+        newbuf[6] = (tm[5] % 10) + 0x10 * (tm[5] // 10)  #sec
+        newbuf[7] = (tm[4] % 10) + 0x10 * (tm[4] // 10)  #min
+        newbuf[8] = (tm[3] % 10) + 0x10 * (tm[3] // 10)  #hour
         # mo=0, tu=1, we=2, th=3, fr=4, sa=5, su=6  # DayOfWeek format of ws28xx devices
         # mo=1, tu=2, we=3, th=4, fr=5, sa=6, su=7  # DayOfWeek format of klimalogg devices
-        DayOfWeek = tm[6]+1       #py  from 1 - 7 - 1=Mon
-        newbuf[0][9]  = DayOfWeek % 10 + 0x10 * (tm[2] % 10)           #day_lo   + DoW
-        newbuf[0][10] = (tm[2] // 10)  + 0x10 * (tm[1] % 10)           #month_lo + day_hi
-        newbuf[0][11] = (tm[1] // 10)  + 0x10 * ((tm[0] - 2000) % 10)  #year-lo  + month-hi
-        newbuf[0][12] = (tm[0] - 2000) // 10                           #not used + year-hi
-        buf[0]=newbuf[0]
-        length = 0x0d
-        return length
+        DayOfWeek = tm[6]+1       # py  from 1 - 7 - 1=Mon
+        newbuf[9]  = DayOfWeek % 10 + 0x10 * (tm[2] % 10)           #day_lo   + DoW
+        newbuf[10] = (tm[2] // 10)  + 0x10 * (tm[1] % 10)           #month_lo + day_hi
+        newbuf[11] = (tm[1] // 10)  + 0x10 * ((tm[0] - 2000) % 10)  #year-lo  + month-hi
+        newbuf[12] = (tm[0] - 2000) // 10                           #not used + year-hi
+        return newlen, newbuf
 
     def buildACKFrame(self, buf, action, cs, hidx=None):
         if DEBUG_COMM > 1:
             logdbg("buildACKFrame: action=%x cs=%04x historyIndex=%s" %
                    (action, cs, hidx))
-        newbuf = [0]
-        newbuf[0] = [0]*11
-        for i in xrange(0, 2):
-            newbuf[0][i] = buf[0][i]
 
         comInt = self.comm_mode_interval
 
@@ -2944,10 +3014,11 @@ class CommunicationService(object):
             # Morphing action only with GetHistory requests, 
             # and stale data after a period of twice the CommModeInterval,
             # but not with init GetHistory requests (0xF0)
-            if action == ACTION_GET_HISTORY and age >= (comInt +1) * 2 and newbuf[0][1] != 0xF0:
+            if (action == ACTION_GET_HISTORY and
+                age >= (comInt +1) * 2 and buf[1] != 0xF0):
                 if DEBUG_COMM > 0:
-                    logdbg('buildACKFrame: morphing action from %d to 5 (age=%s)' % 
-                           (action, age))
+                    logdbg('buildACKFrame: morphing action'
+                           ' from %d to 5 (age=%s)' % (action, age))
                 action = ACTION_GET_CURRENT
 
         if hidx is None:
@@ -2960,48 +3031,40 @@ class CommunicationService(object):
         if DEBUG_COMM > 1:
             logdbg('buildACKFrame: idx: %s addr: 0x%04x' % (hidx, haddr))
 
-        newbuf[0][3]  = action & 0xF
-        newbuf[0][4]  = (cs >> 8) & 0xFF
-        newbuf[0][5]  = (cs >> 0) & 0xFF
-        newbuf[0][6]  = 0x80  ### not known what this means
-        newbuf[0][7]  = comInt & 0xFF
-        newbuf[0][8]  = (haddr >> 16) & 0xFF
-        newbuf[0][9]  = (haddr >> 8 ) & 0xFF
-        newbuf[0][10] = (haddr >> 0 ) & 0xFF
+        # d5 00 0b f0 f0 ff 03 ff ff 80 03 01 07 00
+        #           0  1  2  3  4  5  6  7  8  9 10
+        newlen = 11
+        newbuf = [0] * newlen
+        newbuf[0] = buf[0]
+        newbuf[1] = buf[1]
+        newbuf[2] = LOGGER_1
+        newbuf[3] = action & 0xF
+        newbuf[4] = (cs >> 8) & 0xFF
+        newbuf[5] = (cs >> 0) & 0xFF
+        newbuf[6] = 0x80  # TODO: not known what this means
+        newbuf[7] = comInt & 0xFF
+        newbuf[8] = (haddr >> 16) & 0xFF
+        newbuf[9] = (haddr >> 8 ) & 0xFF
+        newbuf[10] = (haddr >> 0 ) & 0xFF
+        return newlen, newbuf
 
-        #d5 00 0b f0 f0 ff 03 ff ff 80 03 01 07 00
-        buf[0] = newbuf[0]
-        return 11
-
-    def handleWsAck(self, buf):
-        logdbg('handleWsAck')
-        self.last_stat.update(seen_ts=int(time.time()),
-                              quality=(buf[0][4] & 0x7F), 
-                              battery=(buf[0][2] & 0xFF))
-
-    def handleConfig(self, buf, length):
+    def handleConfig(self, length, buf):
         logdbg('handleConfig: %s' % self.timing())
         if DEBUG_CONFIG_DATA > 2:
-            self.hid.dump('InBuf', buf[0], fmt='long', length=0x7D)
-        newbuf = [0]
-        newbuf[0] = buf[0]
-        newlen = [0]
-        now = int(time.time())
-        self.station_config.read(newbuf)
+            self.hid.dump('InBuf', buf, fmt='long', length=length)
+        self.station_config.read(buf)
         if DEBUG_CONFIG_DATA > 1:
             self.station_config.toLog()
+        now = int(time.time())
         self.last_stat.update(seen_ts=now,
-                              quality=(buf[0][4] & 0x7f), 
-                              battery=(buf[0][2] & 0xf),
+                              quality=(buf[4] & 0x7f), 
+                              battery=(buf[2] & 0xf),
                               config_ts=now)
-        cs = newbuf[0][124] | (newbuf[0][123] << 8)
-        self.setSleep(0.300, 0.010)
-        newlen[0] = self.buildACKFrame(newbuf, ACTION_GET_HISTORY, cs)
+        cs = buf[124] | (buf[123] << 8)
+        self.setSleep(self.first_sleep, 0.010)
+        return self.buildACKFrame(buf, ACTION_GET_HISTORY, cs)
 
-        buf[0] = newbuf[0]
-        length[0] = newlen[0]
-
-    def handleCurrentData(self, buf, length):
+    def handleCurrentData(self, length, buf):
         if DEBUG_WEATHER_DATA > 0:
             logdbg('handleCurrentData: %s' % self.timing())
 
@@ -3011,7 +3074,7 @@ class CommunicationService(object):
         age = now - self.last_stat.last_weather_ts
         if age >= self.comm_mode_interval:
             if DEBUG_WEATHER_DATA > 2:
-                self.hid.dump('CurWea', buf[0], fmt='long', length=0xE5)
+                self.hid.dump('CurWea', buf, fmt='long', length=length)
             data = CurrentData()
             data.read(buf)
             self.current = data
@@ -3019,112 +3082,102 @@ class CommunicationService(object):
                 data.toLog()
         else:
             if DEBUG_WEATHER_DATA > 1:
-                logdbg('new weather data within %s received; skip data; ts=%s' % 
+                logdbg('new weather data within %s; skip data; ts=%s' % 
                        (age, now))
 
         # update the connection cache
         self.last_stat.update(seen_ts=now,
-                              quality=(buf[0][4] & 0x7f), 
-                              battery=(buf[0][2] & 0xf),
+                              quality=(buf[4] & 0x7f), 
+                              battery=(buf[2] & 0xf),
                               weather_ts=now)
 
-        newbuf = [0]
-        newbuf[0] = buf[0]
-        newlen = [0]
-        cs = newbuf[0][6] | (newbuf[0][5] << 8)
-
-        cfgbuf = [0]
-        cfgbuf[0] = [0]*125
-
-        changed = self.station_config.testConfigChanged(cfgbuf)
+        cs = buf[6] | (buf[5] << 8)
+        changed, cfgbuf = self.station_config.testConfigChanged()
         inBufCS = self.station_config.getInBufCS()
         if inBufCS == 0 or inBufCS != cs:
             # request for a get config
             logdbg('handleCurrentData: inBufCS of station does not match')
-            self.setSleep(0.300, 0.010)
-            newlen[0] = self.buildACKFrame(newbuf, ACTION_GET_CONFIG, cs)
+            self.setSleep(self.first_sleep, 0.010)
+            newlen, newbuf = self.buildACKFrame(buf, ACTION_GET_CONFIG, cs)
         elif changed:
             # Request for a set config
             logdbg('handleCurrentData: outBufCS of station changed')
-            self.setSleep(0.300, 0.010)
-            newlen[0] = self.buildACKFrame(newbuf, ACTION_REQ_SET_CONFIG, cs)
+            self.setSleep(self.first_sleep, 0.010)
+            newlen, newbuf = self.buildACKFrame(buf, ACTION_REQ_SET_CONFIG, cs)
         else:
             # Request for either a history message or a current weather message
             # In general we don't use ACTION_GET_CURRENT to ask for a current
             # weather  message; they also come when requested for
             # ACTION_GET_HISTORY. This we learned from the Heavy Weather Pro
             # messages (via USB sniffer).
-            self.setSleep(0.300, 0.010)
-            newlen[0] = self.buildACKFrame(newbuf, ACTION_GET_HISTORY, cs)
+            self.setSleep(self.first_sleep, 0.010)
+            newlen, newbuf = self.buildACKFrame(buf, ACTION_GET_HISTORY, cs)
+        return newlen, newbuf
 
-        length[0] = newlen[0]
-        buf[0] = newbuf[0]
+    # timestamp of record with time 'None'
+    TS_1900 = tstr_to_ts(str(datetime(1900, 01, 01, 00, 00)))
 
-    def handleHistoryData(self, buf, buflen):
+    # initially the clock of the KlimaLogg station starts at 1-jan-2010,
+    # so skip all records elder than 1-jul-2010
+    # eldest valid timestamp for history record
+    TS_2010_07 = tstr_to_ts(str(datetime(2010, 07, 01, 00, 00)))
+
+    def handleHistoryData(self, length, buf):
         if DEBUG_HISTORY_DATA > 0:
             logdbg('handleHistoryData: %s' % self.timing())
 
         now = int(time.time())
         self.last_stat.update(seen_ts=now,
-                              quality=(buf[0][3] & 0x7f),
-                              battery=(buf[0][2] & 0xf),
+                              quality=(buf[3] & 0x7f),
+                              battery=(buf[2] & 0xf),
                               history_ts=now)
 
-        newbuf = [0]
-        newbuf[0] = buf[0]
-        newlen = [0]
-        data = CHistoryData()
-        data.read(newbuf)
+        data = HistoryData()
+        data.read(buf)
         if DEBUG_HISTORY_DATA > 1:
             data.toLog()
 
-        cs = newbuf[0][6] | (newbuf[0][5] << 8)
-        latestAddr = bytes_to_addr(buf[0][7], buf[0][8], buf[0][9])
-        thisAddr = bytes_to_addr(buf[0][10], buf[0][11], buf[0][12])
+        cs = buf[6] | (buf[5] << 8)
+        latestAddr = bytes_to_addr(buf[7], buf[8], buf[9])
+        thisAddr = bytes_to_addr(buf[10], buf[11], buf[12])
         latestIndex = addr_to_index(latestAddr)
         thisIndex = addr_to_index(thisAddr)
-        ts1900 = tstr_to_ts(str(datetime(1900, 01, 01, 00, 00)))  # timestamp of record with time 'None'
-        # initially the clock of the KlimaLogg station starts at 1-jan-2010, so skip all records elder than 1-jul-2010
-        ts2010_07 = tstr_to_ts(str(datetime(2010, 07, 01, 00, 00)))  # eldest valid timestamp for history record
+
         tsPos1 = tstr_to_ts(str(data.values['Pos1DT']))
         tsPos2 = tstr_to_ts(str(data.values['Pos2DT']))
-        if tsPos1 == ts1900:
+        if tsPos1 == self.TS_1900:
             # the first history record has date-time 1900-01-01 00:00:00
             # use the time difference with the second message
             tsFirstRec = tsPos2
         else:
             tsFirstRec = tsPos1
-        if tsFirstRec is not None:
-            timeDiff = abs(now - tsFirstRec)
-        else:
+        if tsFirstRec is None or tsFirstRec == self.TS_1900:
             timeDiff = 0
+        else:
+            timeDiff = abs(now - tsFirstRec)
 
         # FIXME: what if we do not have config data yet?
         cfg = self.getConfigData().asDict()
-        dcfOn = 0 if int(cfg['settings']) & 0x4 == 0 else 1
-        requestSetTime = False
-        # if DCF ON: check for an actual history record (tsPos1 == tsPos2)
-        # if history date/time differs more than 1 hour (3600 s) from now: reqSetTime
-        if dcfOn == 1:
-            if tsPos1 == tsPos2 and timeDiff > 3600:
-                requestSetTime = True
-                logdbg('DCF=ON: History record %s: date/time %s differs %s seconds from date/time now %s; send time to KlimaLogg (may not work)' %
-                       (thisIndex,
-                        tsFirstRec,
-                        timeDiff,
-                        now))
-        # if DCF OFF: check for an actual history record (tsPos1 == tsPos2)
-        # if history date/time differs more than 30 seconds from now: reqSetTime
-        elif dcfOn == 0:
-            if tsPos1 == tsPos2 and timeDiff > 30:
-                requestSetTime = True
-                logdbg('DCF=OFF: History record %s: date/time %s differs %s seconds from date/time now %s; send time to KlimaLogg (may not work)' %
-                       (thisIndex,
-                        tsFirstRec,
-                        timeDiff,
-                        now))
+        dcfOn = 'OFF' if int(cfg['settings']) & 0x4 == 0 else 'ON'
 
-        # initially the first buffer presented is 6, in fact it starts at 0, which has date None, so we start at 1
+        # check for an actual history record (tsPos1 == tsPos2) with valid
+        # timestamp (tsPos1 != TS_1900)
+        # if history date/time differs more than 60 s from now then
+        # reqSetTime and initiate alarm
+        requestSetTime = False
+        if tsPos1 == tsPos2 and tsPos1 != self.TS_1900:
+            if timeDiff > 60:
+                self.station_config.setAlarmClockOffset()  # set Humidity0Min value to 99
+                requestSetTime = True
+                logerr('ERROR: DCF: %s; History record %s: date/time differs %s seconds from date/time now; please set the clock of your station' %
+                       (dcfOn, thisIndex, timeDiff))
+            else:
+                self.station_config.resetAlarmClockOffset()  # set Humidity0Min value to 20
+                logdbg('DCF = %s; History record %s: date/time differs %s seconds from date/time now' %
+                       (dcfOn, thisIndex, timeDiff))
+
+        # initially the first buffer presented is 6, in fact it starts at 0,
+        # which has date None, so we start at 1
         if thisIndex == 6 and latestIndex > 12:
             thisIndex = 1
         nrec = get_index(latestIndex - thisIndex)
@@ -3152,8 +3205,8 @@ class CommunicationService(object):
                             arcint = 60 * history_intervals.get(cfg['history_interval'])
                         else:
                             arcint = 60 * 15  # use the typical history interval of 15 min if interval not known yet
-                        # FIXME: this assumes a constant archive interval for all
-                        # records in the station history
+                        # FIXME: this assumes a constant archive interval for
+                        # all records in the station history
                         nreq = int(span / arcint) + 5  # FIXME: punt 5
                         if nreq > nrec:
                             loginf('handleHistoryData: too many records requested (%d), clipping to number stored (%d)' %
@@ -3162,8 +3215,9 @@ class CommunicationService(object):
                     else:
                         loginf('handleHistoryData: no start date known (empty database), use number stored (%d)' % nrec)
                         nreq = nrec
-                # Workaround for nrec as big as 50,000; limit this number to 3001
-                # With historyInterval=15 min: about 1 month data, with HistoryInterval=5 min: about 10 days data
+                # Workaround for nrec up to 50,000; limit this number to 3001
+                # With historyInterval=15 min: about 1 month data,
+                # with HistoryInterval=5 min: about 10 days data
                 if nreq > 3001:
                     nreq = 3001
                 idx = get_index(latestIndex - nreq)
@@ -3186,7 +3240,7 @@ class CommunicationService(object):
                     for x in range(1, 7):
                         tsCurrentRec = tstr_to_ts(str(data.values['Pos%dDT' % x]))
                         # skip records which are too old or elder than requested
-                        if tsCurrentRec >= ts2010_07 and tsCurrentRec >= self.history_cache.since_ts:
+                        if tsCurrentRec >= self.TS_2010_07 and tsCurrentRec >= self.history_cache.since_ts:
                             # skip records with dateTime in the future
                             if tsCurrentRec > (now + 300):
                                 logdbg('handleHistoryData: skip record at Pos%d: tsCurrentRec=%s DT is in the future' %
@@ -3218,7 +3272,7 @@ class CommunicationService(object):
                                 # save only TS of good records
                                 self.ts_last_rec = tsCurrentRec
                         # Check if this record is too old or has no date
-                        elif tsCurrentRec < ts2010_07:
+                        elif tsCurrentRec < self.TS_2010_07:
                             logerr('handleHistoryData: skip record at Pos%d: tsCurrentRec=None DT is too old' % x)
                             self.records_skipped += 1
                         else:
@@ -3236,107 +3290,96 @@ class CommunicationService(object):
         logdbg('handleHistoryData: records appended=%s, records skipped=%s, next=%s' %
                (self.records_appended, self.records_skipped, nextIndex))
 
-        # Ask for a ReqSetTime message when the time of the KlimaLogg Pro differs too much from the current time
+        """  Ask for a ReqSetTime message when the time of the KlimaLogg Pro differs too much from the current time.
+        Note the setTime protocol itself works correct, but the station is not programmed to adjust it's internal clock
+        (other than after initialisation). To warn the KlimaLogg Pro owners the stations clock is not set right,
+        the driver initiates a Humiditi0Min alarm of the basis station. """
         if requestSetTime:
-            self.setSleep(0.300, 0.010)
-            newlen[0] = self.buildACKFrame(newbuf, ACTION_REQ_SET_TIME, cs)
+            self.setSleep(self.first_sleep, 0.010)
+            newlen, newbuf = self.buildACKFrame(buf, ACTION_REQ_SET_TIME, cs)
         else:
-            self.setSleep(0.300, 0.010)
-            newlen[0] = self.buildACKFrame(newbuf, ACTION_GET_HISTORY, cs, nextIndex)
+            self.setSleep(self.first_sleep, 0.010)
+            newlen, newbuf = self.buildACKFrame(buf, ACTION_GET_HISTORY, cs, nextIndex)
+        return newlen, newbuf
 
-        buflen[0] = newlen[0]
-        buf[0] = newbuf[0]
-
-    def handleNextAction(self, buf, length):
-        newbuf = [0]
-        newbuf[0] = buf[0]
-        newlen = [0]
-        newlen[0] = length[0]
+    def handleNextAction(self, length, buf):
         self.last_stat.update(seen_ts=int(time.time()),
-                              quality=(buf[0][4] & 0x7f))
-        cs = newbuf[0][6] | (newbuf[0][5] << 8)
-        if buf[0][3] == RESPONSE_REQUEST:
-            logdbg('handleNextAction: 50 (request)')
+                              quality=(buf[4] & 0x7f))
+        cs = buf[6] | (buf[5] << 8)
+        resp = buf[3]
+        if resp == RESPONSE_REQUEST:
+            logdbg('handleNextAction: %02x (request)' % resp)
             self.setSleep(0.075, 0.005)
-        elif buf[0][3] == RESPONSE_REQ_FIRST_CONFIG:
-            logdbg('handleNextAction: 51 (first-time config)')
+            newlen = length
+            newbuf = buf
+        elif resp == RESPONSE_REQ_FIRST_CONFIG:
+            logdbg('handleNextAction: %02x (first-time config)' % resp)
             self.setSleep(0.075, 0.005)
-            newlen[0] = self.buildFirstConfigFrame(newbuf, cs)
-        elif buf[0][3] == RESPONSE_REQ_SET_CONFIG:
-            logdbg('handleNextAction: 52 (set config data)')
+            newlen, newbuf = self.buildFirstConfigFrame(cs)
+        elif resp == RESPONSE_REQ_SET_CONFIG:
+            logdbg('handleNextAction: %02x (set config data)' % resp)
             self.setSleep(0.075, 0.005)
-            newlen[0] = self.buildConfigFrame(newbuf)
-            logdbg('handleNextAction: %02x' % buf[0][3])
-        elif buf[0][3] == RESPONSE_REQ_SET_TIME:
-            logdbg('handleNextAction: 53 (set time data)')
+            newlen, newbuf = self.buildConfigFrame(buf)
+        elif resp == RESPONSE_REQ_SET_TIME:
+            logdbg('handleNextAction: %02x (set time data)' % resp)
             self.setSleep(0.075, 0.005)
-            newlen[0] = self.buildTimeFrame(newbuf, cs)
-            logdbg('handleNextAction: %02x' % buf[0][3])
+            newlen, newbuf = self.buildTimeFrame(buf, cs)
         else:
-            logdbg('handleNextAction: %02x' % buf[0][3])
-            self.setSleep(0.300, 0.010)
-            newlen[0] = self.buildACKFrame(newbuf, ACTION_GET_HISTORY, cs)
+            logdbg('handleNextAction: %02x' % resp)
+            self.setSleep(self.first_sleep, 0.010)
+            newlen, newbuf = self.buildACKFrame(buf, ACTION_GET_HISTORY, cs)
+        return newlen, newbuf
 
-        length[0] = newlen[0]
-        buf[0] = newbuf[0]
-
-    def generateResponse(self, buf, length):
+    def generateResponse(self, length, buf):
         if DEBUG_COMM > 1:
             logdbg('generateResponse: %s' % self.timing())
-        newbuf = [0]
-        newbuf[0] = buf[0]
-        newlen = [0]
-        newlen[0] = length[0]
-        if length[0] == 0:
+        if length == 0:
             raise BadResponse('zero length buffer')
 
-        bufferID = (buf[0][0] << 8) | buf[0][1]
-        respType = (buf[0][3] & 0xF0)
+        bufferID = (buf[0] << 8) | buf[1]
+        respType = (buf[3] & 0xF0)
         if DEBUG_COMM > 1:
             logdbg("generateResponse: id=%04x resp=%x length=%x" %
-                   (bufferID, respType, length[0]))
-        if bufferID != 0xF0F0:
-            self.set_registered_device_id(bufferID)
-
+                   (bufferID, respType, length))
         deviceID = self.getDeviceID()
+
         if bufferID == 0xF0F0:
             loginf('generateResponse: console not paired, attempting to pair to 0x%04x' % deviceID)
-            newlen[0] = self.buildACKFrame(newbuf, ACTION_GET_CONFIG, deviceID, 0xFFFF)
+            newlen, newbuf = self.buildACKFrame(buf, ACTION_GET_CONFIG, deviceID, 0xFFFF)
         elif bufferID == deviceID:
+            self.set_registered_device_id(bufferID)  # the station and transceiver are paired now
             if respType == RESPONSE_DATA_WRITTEN:
-                if length[0] == 0x07:  # 7
+                if length == 0x07:  # 7
                     self.hid.setRX()
                     raise DataWritten()
                 else:
-                    raise BadResponse('len=%x resp=%x' % (length[0], respType))
+                    raise BadResponse('len=%x resp=%x' % (length, respType))
             elif respType == RESPONSE_GET_CONFIG:
-                if length[0] == 0x7D:  # 125
-                    self.handleConfig(newbuf, newlen)
+                if length == 0x7D:  # 125
+                    newlen, newbuf = self.handleConfig(length, buf)
                 else:
-                    raise BadResponse('len=%x resp=%x' % (length[0], respType))
+                    raise BadResponse('len=%x resp=%x' % (length, respType))
             elif respType == RESPONSE_GET_CURRENT:
-                if length[0] == 0xE5:  # 229
-                    self.handleCurrentData(newbuf, newlen)
+                if length == 0xE5:  # 229
+                    newlen, newbuf = self.handleCurrentData(length, buf)
                 else:
-                    raise BadResponse('len=%x resp=%x' % (length[0], respType))
+                    raise BadResponse('len=%x resp=%x' % (length, respType))
             elif respType == RESPONSE_GET_HISTORY:
-                if length[0] == 0xB5:  # 181
-                    self.handleHistoryData(newbuf, newlen)
+                if length == 0xB5:  # 181
+                    newlen, newbuf = self.handleHistoryData(length, buf)
                 else:
-                    raise BadResponse('len=%x resp=%x' % (length[0], respType))
+                    raise BadResponse('len=%x resp=%x' % (length, respType))
             elif respType == RESPONSE_REQUEST:
-                if length[0] == 0x07:  # 7
-                    self.handleNextAction(newbuf, newlen)
+                if length == 0x07:  # 7
+                    newlen, newbuf = self.handleNextAction(length, buf)
                     self.hid.setState(0)
                 else:
-                    raise BadResponse('len=%x resp=%x' % (length[0], respType))
+                    raise BadResponse('len=%x resp=%x' % (length, respType))
             else:
                 raise BadResponse('unexpected response type %x' % respType)
         else:
             raise UnknownDeviceId('unexpected device ID (id=%04x)' % bufferID)
-
-        buf[0] = newbuf[0]
-        length[0] = newlen[0]
+        return newlen, newbuf
 
     def configureRegisterNames(self):
         self.reg_names[AX5051RegisterNames.IFMODE]     = 0x00
@@ -3397,15 +3440,14 @@ class CommunicationService(object):
         logdbg('frequency standard: %s' % frequency_standard)
         freq = frequencies.get(frequency_standard, frequencies['EU'])
         loginf('base frequency: %d' % freq)
-        freqVal =  long(freq / 16000000.0 * 16777216.0)
-        corVec = [None]
-        self.hid.readConfigFlash(0x1F5, 4, corVec)
-        corVal = corVec[0][0] << 8
-        corVal |= corVec[0][1]
+        freqVal = long(freq / 16000000.0 * 16777216.0)
+        corVec = self.hid.readConfigFlash(0x1F5, 4)
+        corVal = corVec[0] << 8
+        corVal |= corVec[1]
         corVal <<= 8
-        corVal |= corVec[0][2]
+        corVal |= corVec[2]
         corVal <<= 8
-        corVal |= corVec[0][3]
+        corVal |= corVec[3]
         loginf('frequency correction: %d (0x%x)' % (corVal, corVal))
         freqVal += corVal
         if not (freqVal % 2):
@@ -3422,15 +3464,13 @@ class CommunicationService(object):
             self.reg_names[AX5051RegisterNames.FREQ0]))
 
         # figure out the transceiver id
-        buf = [None]
-        self.hid.readConfigFlash(0x1F9, 7, buf)
-        tid  = buf[0][5] << 8
-        tid += buf[0][6]
+        buf = self.hid.readConfigFlash(0x1F9, 7)
+        tid = (buf[5] << 8) + buf[6]
         loginf('transceiver identifier: %d (0x%04x)' % (tid, tid))
         self.transceiver_settings.device_id = tid
 
         # figure out the transceiver serial number
-        sn = ''.join(['%02d' % x for x in buf[0][0:7]])
+        sn = ''.join(['%02d' % x for x in buf[0:7]])
         loginf('transceiver serial: %s' % sn)
         self.transceiver_settings.serial_number = sn
 
@@ -3593,20 +3633,17 @@ class CommunicationService(object):
         else:
             return
 
-        datalen = [0]
-        datalen[0] = 0
-        framebuf = [0]
-        framebuf[0] = [0] * 3
-        self.hid.getFrame(framebuf, datalen)
+        framelen, framebuf = self.hid.getFrame()
         try:
-            self.generateResponse(framebuf, datalen)
-            self.hid.setFrame(framebuf[0], datalen[0])
+            framelen, framebuf = self.generateResponse(framelen, framebuf)
+            self.hid.setFrame(framelen, framebuf)
+        except DataWritten:
+            logdbg('SetTime/SetConfig data written')
         except BadResponse, e:
             logerr('generateResponse failed: %s' % e)
         except UnknownDeviceId, e:
             logdbg('%s' % e)
-        except DataWritten:
-            logdbg('SetTime/SetConfig data written')
+            self.setSleep(0.001, 0.010)  # don't wait too long after not wanted message
         self.hid.setTX()
 
     # these are for diagnostics and debugging
