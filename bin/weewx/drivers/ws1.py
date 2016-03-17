@@ -406,7 +406,8 @@ class StationInet(object):
                 StationData.validate_string(buf)
                 return buf
             except (weewx.WeeWxIOError), e:
-                loginf("Failed to get data for some reason: %s" % e)
+                if DEBUG_READ >= 1:
+                  logdbg("Failed to get data for some reason: %s" % e)
                 self.rec_start = False
 
                 # NOTE: WeeWx IO Errors may not always occur because of
